@@ -1,0 +1,94 @@
+{
+  "books": {
+    "the_way_of_the_superior_man": {
+      "title": "The way of the superior man",
+      "author": "David Deida",
+      "filename": "The way of the superior man.pdf",
+      "filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/downloads/The way of the superior man.pdf",
+      "size_mb": 1.08,
+      "total_pages": 253,
+      "source_url": "https://archive.org/download/TheWayoftheSuperiorMan/The%2BWay%2Bof%2Bthe%2BSuperior%2BMan.pdf",
+      "downloaded_at": "2026-01-14T04:31:08.619391",
+      "chapter1": {
+        "pdf_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/chapters/The way of the superior man_chapter1.pdf",
+        "text_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/text/The way of the superior man_chapter1.txt",
+        "title": "Chapter 1: A Man's Way",
+        "start_page": 25,
+        "end_page": 50,
+        "pages": 26,
+        "text_length": 27862,
+        "extracted_at": "2026-01-14T04:31:09.845947"
+      }
+    },
+    "the_almanack_of_naval_ravikant": {
+      "title": "The Almanack of Naval Ravikant",
+      "author": "Eric Jorgenson",
+      "filename": "The Almanack of Naval Ravikant.pdf",
+      "filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/downloads/The Almanack of Naval Ravikant.pdf",
+      "size_mb": 1.8,
+      "total_pages": 242,
+      "source_url": "https://navalmanack.s3.amazonaws.com/Eric-Jorgenson_The-Almanack-of-Naval-Ravikant_Final.pdf",
+      "downloaded_at": "2026-01-14T04:27:35.486240",
+      "chapter1": {
+        "pdf_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/chapters/The Almanack of Naval Ravikant_chapter1.pdf",
+        "text_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/text/The Almanack of Naval Ravikant_chapter1.txt",
+        "title": "Chapter 1",
+        "start_page": 6,
+        "end_page": 6,
+        "pages": 1,
+        "text_length": 749,
+        "extracted_at": "2026-01-14T04:27:37.686871"
+      }
+    },
+    "101_ways_to_get_in_shape": {
+      "title": "101 ways to get in shape",
+      "author": "Charlotte Guillain",
+      "filename": "101 ways to get in shape.pdf",
+      "filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/downloads/101 ways to get in shape.pdf",
+      "size_mb": 0.13,
+      "total_pages": 23,
+      "source_url": "https://cdn1.sportngin.com/attachments/document/86cd-2135106/March_15-101fitness.pdf",
+      "downloaded_at": "2026-01-14T04:25:39.499089"
+    },
+    "freakonomics": {
+      "title": "Freakonomics",
+      "author": "Steven D. Levitt, Stephen J. Dubner, Andrea Montero Cusset",
+      "filename": "Freakonomics.pdf",
+      "filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/downloads/Freakonomics.pdf",
+      "size_mb": 2.16,
+      "total_pages": 340,
+      "source_url": "https://emilkirkegaard.dk/en/wp-content/uploads/Freakonomics-expanded.pdf",
+      "downloaded_at": "2026-01-14T20:49:42.137255",
+      "chapter1": {
+        "pdf_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/chapters/Freakonomics_chapter1.pdf",
+        "text_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/text/Freakonomics_chapter1.txt",
+        "title": "Chapter 1",
+        "start_page": 6,
+        "end_page": 31,
+        "pages": 26,
+        "text_length": 38912,
+        "extracted_at": "2026-01-14T20:49:43.422463"
+      }
+    },
+    "the_silent_patient": {
+      "title": "The Silent Patient",
+      "author": "Alex Michaelides",
+      "filename": "The Silent Patient.pdf",
+      "filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/downloads/The Silent Patient.pdf",
+      "size_mb": 1.53,
+      "total_pages": 299,
+      "source_url": "https://www.cole13.com/wp-content/uploads/2023/06/The-Silent-Patient-Alex-Michaelides-Z-Library.pdf",
+      "downloaded_at": "2026-01-14T22:45:48.896658",
+      "chapter1": {
+        "pdf_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/chapters/The Silent Patient_chapter1.pdf",
+        "text_filepath": "/Users/karan/Downloads/Code/Code/podcastify2/backend/text/The Silent Patient_chapter1.txt",
+        "title": "Chapter 1: He that has eyes to see and ears to hear may",
+        "start_page": 9,
+        "end_page": 12,
+        "pages": 4,
+        "text_length": 6347,
+        "extracted_at": "2026-01-14T22:45:50.165384"
+      }
+    }
+  }
+}

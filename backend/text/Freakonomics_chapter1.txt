@@ -1,0 +1,590 @@
+# Freakonomics
+## Chapter 1
+Pages 6 - 31
+
+--- Page 6 ---
+Co n t e n t s 
+Who cheats? Just about everyone...H o w cheaters cheat, and how to 
+catch them ...S tories from an Israeli day-care cente r... The sudden dis -
+appearance of seven million American childre n...C heating schoolteachers 
+in Chicag o...W h y cheating to lose is worse than cheating to wi n... 
+Could sumo wrestling, the national sport of Japan, be corrupt ?...W h a t 
+the Bagel Man saw: mankind may be more honest than we think. 
+2. How Is the Ku Klux Klan Like a Group 
+of Real-Estate Agents? 49 
+In which it is argued that nothing is more powerful than information, 
+especially when its power is abused. 
+Spilling the Ku Klux Klan’s secret s...W h y experts of every kind are in 
+the perfect position to exploit yo u... The antidote to information abuse: 
+the Interne t...W h y  a new car is suddenly worth so much less the moment 
+it leaves the lo t...B r eaking the real-estate agent code: what “well main -
+tained” really mean s...I s  T r ent Lott more racist than the average Weakest 
+Link contestant ?...W hat do online daters lie about? 
+3. Why Do Drug Dealers Still Live with Their Moms? 79 
+In which the conventional wisdom is often found to be a web of fabri -
+cation, self-interest, and convenience. 
+Why experts routinely make up statistics; the invention of chronic hali-
+tosis...H o w  t o ask a good questio n...S udhir Venkatesh’s long, strange 
+trip into the crack de n...L ife is a tournamen t...W h y  p r ostitutes earn 
+more than architect s...W hat a drug dealer, a high-school quarterback, 
+and an editorial assistant have in commo n...H o w the invention of crack 
+cocaine mirrored the invention of nylon stocking s...W a s  c r ack the worst 
+thing to hit black Americans since Jim Crow? 
+4. Where Have All the Criminals Gone? 105 
+In which the facts of crime are sorted out from the ﬁctions. 
+What Nicolae Ceaus ¸escu learned—the hard way—about abortio n... 
+iv 
+
+--- Page 7 ---
+Co n t e n t s 
+Why the 1960s was a great time to be a crimina l...T hink the roaring 
+1990s economy put a crimp on crime? Think agai n...W h y capital pun -
+ishment doesn’t deter criminal s...D o police actually lower crime rates? 
+...P risons, prisons everywhere ...S eeing through the New York City po -
+lice “miracle” ...W hat is a gun, really ?...W h y  e a r l y  c r ack dealers were 
+like Microsoft millionaires and later crack dealers were like Pets.co m... 
+The superpredator versus the senior citize n...J ane Roe, crime stopper: 
+how the legalization of abortion changed everything. 
+5. What Makes a Perfect Parent? 133 
+In which we ask, from a variety of angles, a pressing question: do par -
+ents really matter? 
+The conversion of parenting from an art to a scienc e...W h y  p a r enting 
+experts like to scare parents to deat h...W hich is more dangerous: a gun or 
+a swimming pool ?... The economics of fea r...O bsessive parents and the 
+nature-nurture quagmire ...W h y  a good school isn’t as good as you might 
+think...T h e black-white test gap and “acting white” ...E ight things 
+that make a child do better in school and eight that don’t. 
+6. Perfect Parenting, Part II; or: Would a 
+Roshanda by Any Other Name Smell as Sweet? 163 
+In which we weigh the importance of a parent’s ﬁrst ofﬁcial act—nam-
+ing the baby. 
+A boy named Winner and his brother, Lose r...T h e blackest names 
+and the whitest names... The segregation of culture: why Seinfeld never 
+made the top ﬁfty among black viewer s...I f  y o u  h a v e  a  r eally bad name, 
+should you just change it ?...H igh-end names and low-end names (and 
+how one becomes the other )...B ritney Spears: a symptom, not a caus e... 
+Is Aviva the next Madison ?...W hat your parents were telling the world 
+when they gave you your name. 
+v 
+
+--- Page 8 ---
+Co n t e n t s 
+EPILOGUE : Two Paths to Harvard 189 
+In which the dependability of data meets the randomness of life. 
+Bonus Material Added to the Revised and Expanded  
+2006 Edition 193 
+Credits 
+Cover 
+Copyright 
+About the Publisher Notes 285 
+Acknowledgments 309 
+Index 311 
+vi About the Authors 
+
+--- Page 9 ---
+AN EXPLANATORY NOTE 
+In the summer of 2003, the New York Times Magazine sent Stephen J. 
+Dubner, an author and journalist, to write a proﬁle of Steven D. 
+Levitt, a heralded young economist at the University of Chicago. 
+Dubner, who was researching a book about the psychology of 
+money, had lately been interviewing many economists and found that they often spoke English as if it were a fourth or ﬁfth language. Levitt, 
+who had just won the John Bates Clark Medal (a sort of junior Nobel 
+Prize for young economists), had lately been interviewed by many journalists and found that their thinking wasn’t ver y... robust , as an 
+economist might say. 
+But Levitt decided that Dubner wasn’t a complete idiot. And Dub -
+ner found that Levitt wasn’t a human slide rule. The writer was daz -
+zled by the inventiveness of the economist’s work and his knack for explaining it. Despite Levitt’s elite credentials (Harvard undergrad, a PhD from MIT, a stack of awards), he approached economics in a no
+-
+tably unorthodox way. He seemed to look at the world not so much as 
+
+--- Page 10 ---
+An Explanatory Note 
+an academic but as a very smart and curious explorer—a documen -
+tary ﬁlmmaker, perhaps, or a forensic investigator or a bookie whose 
+markets ranged from sports to crime to pop culture. He professed lit -
+tle interest in the sort of monetary issues that come to mind when most people think about economics; he practically blustered with self-effacement. “I just don’t know very much about the ﬁeld of eco
+-
+nomics,” he told Dubner at one point, swiping the hair from his eyes. “I’m not good at math, I don’t know a lot of econometrics, and I also don’t know how to do theory. If you ask me about whether the stock 
+market’s going to go up or down, if you ask me whether the economy’s 
+going to grow or shrink, if you ask me whether deﬂation’s good or bad, if you ask me about taxes—I mean, it would be total fakery if I said I knew anything about any of those things.” 
+What interested Levitt were the riddles of everyday life. His inves -
+tigations were a feast for anyone wanting to know how the world re -
+ally works. His singular attitude was evoked in Dubner’s resulting article: 
+As Levitt sees it, economics is a science with excellent tools for gain -
+ing answers but a serious shortage of interesting questions. His par -
+ticular gift is the ability to ask such questions. For instance: If drug dealers make so much money, why do they still live with their mothers? Which is more dangerous, a gun or a swimming pool? 
+What really caused crime rates to plunge during the past decade? 
+Do real-estate agents have their clients’ best interests at heart? Why do black parents give their children names that may hurt their ca
+-
+reer prospects? Do schoolteachers cheat to meet high-stakes testing standards? Is sumo wrestling corrupt? 
+Many people—including a fair number of his peers—might 
+not recognize Levitt’s work as economics at all. But he has merely distilled the so-called dismal science to its most primal aim: ex
+-
+plaining how people get what they want. Unlike most academics, 
+viii 
+
+--- Page 11 ---
+An Explanatory Note 
+he is unafraid of using personal observations and curiosities; he is 
+also unafraid of anecdote and storytelling (although he is afraid of calculus). He is an intuitionist. He sifts through a pile of data to 
+ﬁnd a story that no one else has found. He ﬁgures a way to measure 
+an effect that veteran economists had declared unmeasurable. His abiding interests—though he says he has never trafﬁcked in them himself—are cheating, corruption, and crime. 
+Levitt’s blazing curiosity also proved attractive to thousands of 
+New York Times readers. He was beset by questions and queries, rid -
+dles and requests—from General Motors and the New York Yankees and U.S. senators but also from prisoners and parents and a man who for twenty years had kept precise data on his sales of bagels. A former 
+Tour de France champion called Levitt to ask his help in proving that 
+the current Tour is rife with doping; the Central Intelligence Agency wanted to know how Levitt might use data to catch money launderers and terrorists. 
+What they were all responding to was the force of Levitt’s underly -
+ing belief: that the modern world, despite a surfeit of obfuscation, complication, and downright deceit, is not impenetrable, is not un
+-
+knowable, and—if the right questions are asked—is even more in -
+triguing than we think. All it takes is a new way of looking. 
+In New York City, the publishers were telling Levitt he should 
+write a book. 
+“Write a book?” he said. “I don’t want to write a book.” He already 
+had a million more riddles to solve than time to solve them. Nor did he think himself much of a writer. So he said that no, he wasn’t 
+interested—“unless,” he proposed, “maybe Dubner and I could do it 
+together.” 
+Collaboration isn’t for everyone. But the two of them—henceforth 
+known as the two of us—decided to talk things over to see if such a 
+book might work. We decided it could. We hope you agree. 
+ix 
+
+--- Page 12 ---
+
+
+--- Page 13 ---
+PREFACE 
+TO THE REVISED AND 
+EXPANDED EDITION 
+As we were writing Freakonomics, we had grave doubts that anyone 
+would actually read it—and we certainly never envisioned the need 
+for this revised and expanded edition. But we are very happy, and 
+grateful, to have been wrong. 
+So why bother with a revised edition? 
+There are a few reasons. The ﬁrst is that the world is a living, 
+breathing, changing thing, whereas a book is not. Once a manuscript 
+is ﬁnished, it sits, dead in the water, for nearly a year until it is made 
+ready by the publisher for its debut. This doesn’t pose much of a prob -
+lem if you have written, say, a history of the Third Punic War. But be -
+cause Freakonomics explores all sorts of modern real-world issues, and 
+because the modern world tends to change quite fast, we have gone 
+through the book and made a number of minor updates. 
+Also, we made some mistakes. It was usually a reader who would 
+bring a mistake to our attention, and we very much appreciate this input. Again, most of these changes are quite minor. 
+
+--- Page 14 ---
+Preface to the Revised and Expanded Edition 
+The most aggressively revised section of the book is the beginning 
+of chapter 2, which tells the story of one man’s crusade against the Ku 
+Klux Klan. Several months after Freakonomics was ﬁrst published, it 
+was brought to our attention that this man’s portrayal of his crusade, and of various other Klan matters, was considerably overstated. (For a fuller explanation, see an essay called “Hoodwinked?” on page 231.) As unpleasant as it was to acknowledge this error, and to diminish the 
+reputation of a man beloved in many quarters, we felt it was impor
+-
+tant to set straight the historical record. 
+We have also futzed a bit with the architecture of the book. In the 
+original version, each chapter was preceded by an excerpt from the 
+New York Times Magazine proﬁle that one of us (Dubner) wrote about 
+the other (Levitt), and which led to our collaboration on this book. Because some readers found these excerpts intrusive (and/or egoma
+-
+niacal, and/or sycophantic), we have removed them, instead reprint -
+ing the complete Times proﬁle in the back of this edition in the 
+section called “Bonus Material” (page 193). There, it can be easily skipped over if one so chooses, or read in isolation. 
+The further bonus material is what accounts for our having 
+called this edition “expanded” in addition to “revised.” Soon after the original publication of Freakonomics, in April 2005, we began writing 
+a monthly column for the New York Times Magazine. We have in
+-
+cluded in this edition several of these columns, on subjects ranging from voting behavior to dog poop to the economics of sexual prefer
+-
+ence. 
+We have also included a variety of writings from our blog 
+(www.freakonomics.com/blog/)—which, like this revised edition, was not planned. In the beginning, we built a website merely to per
+-
+form archival and trafﬁcking functions. We blogged reluctantly, ten -
+tatively, infrequently. But as the months went on, and as we discovered an audience of people who had read Freakonomics and 
+xii 
+
+--- Page 15 ---
+Preface to the Revised and Expanded Edition 
+were eager to bat its ideas back and forth, we took to it more enthusi -
+astically. 
+A blog, as it turns out, is an author’s perfect antidote for that sick -
+ening feeling of being dead in the water once a manuscript has been 
+completed. Particularly for a book like this one, a book of ideas, there is nothing more intoxicating than to be able to extend those ideas, to 
+continue to reﬁne and challenge and wrestle with them, even as the 
+world marches on. 
+xiii 
+
+--- Page 16 ---
+
+
+--- Page 17 ---
+INTRODUCTION: 
+The Hidden Side of 
+Everything 
+Anyone living in the United States in the early 1990s and paying even 
+a whisper of attention to the nightly news or a daily paper could be forgiven for having been scared out of his skin. 
+The culprit was crime. It had been rising relentlessly—a graph 
+plotting the crime rate in any American city over recent decades looked like a ski slope in proﬁle—and it seemed now to herald the 
+end of the world as we knew it. Death by gunﬁre, intentional and oth
+-
+erwise, had become commonplace. So too had carjacking and crack 
+dealing, robbery and rape. Violent crime was a gruesome, constant companion. And things were about to get even worse. Much worse. 
+All the experts were saying so. 
+The cause was the so-called superpredator. For a time, he was 
+everywhere. Glowering from the cover of newsweeklies. Swaggering 
+his way through foot-thick government reports. He was a scrawny, 
+big-city teenager with a cheap gun in his hand and nothing in his 
+heart but ruthlessness. There were thousands out there just like him, 
+
+--- Page 18 ---
+FREAKONOMICS 
+we were told, a generation of killers about to hurl the country into 
+deepest chaos. 
+In 1995 the criminologist James Alan Fox wrote a report for the 
+U.S. attorney general that grimly detailed the coming spike in mur-
+ders by teenagers. Fox proposed optimistic and pessimistic scenarios. In the optimistic scenario, he believed, the rate of teen homicides 
+would rise another 15 percent over the next decade; in the pessimistic 
+scenario, it would more than double. “The next crime wave will get so bad,” he said, “that it will make 1995 look like the good old days.” 
+Other criminologists, political scientists, and similarly learned 
+forecasters laid out the same horrible future, as did President Clinton. “We know we’ve got about six years to turn this juvenile crime thing 
+around,” Clinton said, “or our country is going to be living with 
+chaos. And my successors will not be giving speeches about the won
+-
+derful opportunities of the global economy; they’ll be trying to keep body and soul together for people on the streets of these cities.” The smart money was plainly on the criminals. 
+And then, instead of going up and up and up, crime began to fall. 
+And fall and fall and fall some more. The crime drop was startling in several respects. It was ubiquitous, with every category of crime falling 
+in every part of the country. It was persistent, with incremental de
+-
+creases year after year. And it was entirely unanticipated—especially 
+by the very experts who had been predicting the opposite. 
+The magnitude of the reversal was astounding. The teenage mur -
+der rate, instead of rising 100 percent or even 15 percent as James Alan Fox had warned, fell more than 50 percent within ﬁve years. By 2000 the overall murder rate in the United States had dropped to its 
+lowest level in thirty-ﬁve years. So had the rate of just about every 
+other sort of crime, from assault to car theft. 
+Even though the experts had failed to anticipate the crime drop— 
+which was in fact well under way even as they made their horrifying 
+2 
+
+--- Page 19 ---
+Introduction: The Hidden Side of Everything 
+predictions—they now hurried to explain it. Most of their theories 
+sounded perfectly logical. It was the roaring 1990s economy, they said, that helped turn back crime. It was the proliferation of gun con
+-
+trol laws, they said. It was the sort of innovative policing strategies put into place in New York City, where murders would fall from 2,262 in 1990 to 540 in 2005. 
+These theories were not only logical; they were also encouraging , 
+for they attributed the crime drop to speciﬁc and recent human initiatives. If it was gun control and clever police strategies and better-
+paying jobs that quelled crime—well then, the power to stop crimi
+-
+nals had been within our reach all along. As it would be the next time, 
+God forbid, that crime got so bad. 
+These theories made their way, seemingly without friction, from 
+the experts’ mouths to journalists’ ears to the public’s mind. In short course, they became conventional wisdom. 
+There was only one problem: they weren’t true. 
+There was another factor, meanwhile, that had greatly contributed 
+to the massive crime drop of the 1990s. It had taken shape more than twenty years earlier and concerned a young woman in Dallas named 
+Norma McCorvey. 
+Like the proverbial butterﬂy that ﬂaps its wings on one continent 
+and eventually causes a hurricane on another, Norma McCorvey dra -
+matically altered the course of events without intending to. All she 
+had wanted was an abortion. She was a poor, uneducated, unskilled, alcoholic, drug-using twenty-one-year-old woman who had already 
+given up two children for adoption and now, in 1970, found herself 
+pregnant again. But in Texas, as in all but a few states at that time, abortion was illegal. McCorvey’s cause came to be adopted by people far more powerful than she. They made her the lead plaintiff in a 
+class-action lawsuit seeking to legalize abortion. The defendant was 
+Henry Wade, the Dallas County district attorney. The case ultimately 
+3 
+
+--- Page 20 ---
+FREAKONOMICS 
+made it to the U.S. Supreme Court, by which time McCorvey’s name 
+had been disguised as Jane Roe. On January 22, 1973, the court ruled in favor of Ms. Roe, allowing legalized abortion throughout the 
+United States. By this time, of course, it was far too late for Ms. 
+McCorvey/Roe to have her abortion. She had given birth and put the child up for adoption. (Years later she would renounce her allegiance to legalized abortion and become a pro-life activist.) 
+So how did Roe v. Wade help trigger, a generation later, the greatest 
+crime drop in recorded history? 
+As far as crime is concerned, it turns out that not all children are 
+born equal. Not even close. Decades of studies have shown that a child born into an adverse family environment is far more likely than 
+other children to become a criminal. And the millions of women 
+most likely to have an abortion in the wake of Roe v. Wade—poor, un
+-
+married, and teenage mothers for whom illegal abortions had been too expensive or too hard to get—were often models of adversity. They were the very women whose children, if born, would have been 
+much more likely than average to become criminals. But because of 
+Roe v. Wade , these children weren’t being born. This powerful cause 
+would have a drastic, distant effect: years later, just as these unborn children would have entered their criminal primes, the rate of crime 
+began to plummet. 
+It wasn’t gun control or a strong economy or new police strategies 
+that ﬁnally blunted the American crime wave. It was, among other 
+factors, the reality that the pool of potential criminals had dramati -
+cally shrunk. 
+Now, as the crime-drop experts (the former crime doomsayers) 
+spun their theories to the media, how many times did they cite legal -
+ized abortion as a cause? 
+Zero. 
+4 
+
+--- Page 21 ---
+Introduction: The Hidden Side of Everything 
+It is the quintessential blend of commerce and camaraderie: you hire 
+a real-estate agent to sell your home. 
+She sizes up its charms, snaps some pictures, sets the price, writes a 
+seductive ad, shows the house aggressively, negotiates the offers, and sees the deal through to its end. Sure, it’s a lot of work, but she’s get
+-
+ting a nice cut. On the sale of a $300,000 house, a typical 6 percent agent fee yields $18,000. Eighteen thousand dollars, you say to your
+-
+self: that’s a lot of money. But you also tell yourself that you never could have sold the house for $300,000 on your own. The agent knew how to—what’s that phrase she used?—“maximize the house’s value.” 
+She got you top dollar, right? 
+Right? 
+A real-estate agent is a different breed of expert than a criminolo -
+gist, but she is every bit the expert. That is, she knows her ﬁeld far bet -
+ter than the layman on whose behalf she is acting. She is better 
+informed about the house’s value, the state of the housing market, even the buyer’s frame of mind. You depend on her for this informa
+-
+tion. That, in fact, is why you hired an expert. 
+As the world has grown more specialized, countless such experts 
+have made themselves similarly indispensable. Doctors, lawyers, con -
+tractors, stockbrokers, auto mechanics, mortgage brokers, ﬁnancial planners: they all enjoy a gigantic informational advantage. And they use that advantage to help you, the person who hired them, get ex
+-
+actly what you want for the best price. 
+Right? 
+It would be lovely to think so. But experts are human, and humans 
+respond to incentives. How any given expert treats you, therefore, will depend on how that expert’s incentives are set up. Sometimes his in
+-
+centives may work in your favor. For instance: a study of California auto mechanics found they often passed up a small repair bill by letting failing cars pass emissions inspections—the reason being that 
+5 
+
+--- Page 22 ---
+FREAKONOMICS 
+lenient mechanics are rewarded with repeat business. But in a differ -
+ent case, an expert’s incentives may work against you. In a medical 
+study, it turned out that obstetricians in areas with declining birth rates are much more likely to perform cesarean-section deliveries than 
+obstetricians in growing areas—suggesting that, when business is 
+tough, doctors try to ring up more expensive procedures. 
+It is one thing to muse about experts’ abusing their position and 
+another to prove it. The best way to do so would be to measure how an expert treats you versus how he performs the same service for him
+-
+self. Unfortunately a surgeon doesn’t operate on himself. Nor is his medical ﬁle a matter of public record; neither is an auto mechanic’s re
+-
+pair log for his own car. 
+Real-estate sales, however, are a matter of public record. And real-
+estate agents often do sell their own homes. A recent set of data cover -
+ing the sale of nearly 100,000 houses in suburban Chicago shows that more than 3,000 of those houses were owned by the agents them
+-
+selves. 
+Before plunging into the data, it helps to ask a question: what is 
+the real-estate agent’s incentive when she is selling her own home? Simple: to make the best deal possible. Presumably this is also your in
+-
+centive when you are selling your home. And so your incentive and the real-estate agent’s incentive would seem to be nicely aligned. Her commission, after all, is based on the sale price. 
+But as incentives go, commissions are tricky. First of all, a 6 per -
+cent real-estate commission is typically split between the seller’s agent and the buyer’s. Each agent then kicks back roughly half of her take to the agency. Which means that only 1.5 percent of the purchase price 
+goes directly into your agent’s pocket. 
+So on the sale of your $300,000 house, her personal take of the 
+$18,000 commission is $4,500. Still not bad, you say. But what if the 
+house was actually worth more than $300,000? What if, with a little 
+6 
+
+--- Page 23 ---
+Introduction: The Hidden Side of Everything 
+more effort and patience and a few more newspaper ads, she could 
+have sold it for $310,000? After the commission, that puts an addi -
+tional $9,400 in your pocket. But the agent’s additional share—her personal 1.5 percent of the extra $10,000—is a mere $150. If you earn $9,400 while she earns only $150, maybe your incentives aren’t 
+aligned after all. (Especially when she’s the one paying for the ads and 
+doing all the work.) Is the agent willing to put out all that extra time, money, and energy for just $150? 
+There’s one way to ﬁnd out: measure the difference between the 
+sales data for houses that belong to real-estate agents themselves and the houses they sold on behalf of clients. Using the data from the sales 
+of those 100,000 Chicago homes, and controlling for any number of 
+variables—location, age and quality of the house, aesthetics, whether or not the property was an investment, and so on—it turns out that a real-estate agent keeps her own home on the market an average of ten 
+days longer and sells it for an extra 3-plus percent, or $10,000 on a 
+$300,000 house. When she sells her own house, an agent holds out for the best offer; when she sells yours, she encourages you to take the ﬁrst decent offer that comes along. Like a stockbroker churning com
+-
+missions, she wants to make deals and make them fast. Why not? Her share of a better offer—$150—is too puny an incentive to encourage her to do otherwise. 
+Of all the truisms about politics, one is held to be truer than the rest: money buys elections. Arnold Schwarzenegger, Michael Bloomberg, Jon Corzine—these are but a few recent, dramatic examples of the 
+truism at work. (Disregard for a moment the contrary examples of 
+Steve Forbes, Michael Hufﬁngton, and especially Thomas Golisano, who over the course of three gubernatorial elections in New York spent $93 million of his own money and won 4 percent, 8 percent, 
+7 
+
+--- Page 24 ---
+FREAKONOMICS 
+and 14 percent, respectively, of the vote.) Most people would agree 
+that money has an undue inﬂuence on elections and that far too much money is spent on political campaigns. 
+Indeed, election data show it is true that the candidate who spends 
+more money in a campaign usually wins. But is money the cause of the 
+victory? 
+It might seem logical to think so, much as it might have seemed 
+logical that a booming 1990s economy helped reduce crime. But just because two things are correlated does not mean that one causes the 
+other. A correlation simply means that a relationship exists between 
+two factors—let’s call them X and Y—but it tells you nothing about 
+the direction of that relationship. It’s possible that X causes Y; it’s also 
+possible that Y causes X; and it may be that X and Y are both being 
+caused by some other factor, Z. 
+Think about this correlation: cities with a lot of murders also tend 
+to have a lot of police ofﬁcers. Consider now the police/murder corre -
+lation in a pair of real cities. Denver and Washington, D.C., have about the same population—but Washington has nearly three times as many police as Denver, and it also has eight times the number of 
+murders. Unless you have more information, however, it’s hard to say 
+what’s causing what. Someone who didn’t know better might con
+-
+template these ﬁgures and conclude that it is all those extra police in Washington who are causing the extra murders. Such wayward think
+-
+ing, which has a long history, generally provokes a wayward response. Consider the folktale of the czar who learned that the most disease-ridden province in his empire was also the province with the most 
+doctors. His solution? He promptly ordered all the doctors shot dead. 
+Now, returning to the issue of campaign spending: in order to ﬁg -
+ure out the relationship between money and elections, it helps to con -
+sider the incentives at play in campaign ﬁnance. Let’s say you are the 
+kind of person who might contribute $1,000 to a candidate. Chances 
+8 
+
+--- Page 25 ---
+Introduction: The Hidden Side of Everything 
+are you’ll give the money in one of two situations: a close race, in 
+which you think the money will inﬂuence the outcome; or a cam -
+paign in which one candidate is a sure winner and you would like to bask in reﬂected glory or receive some future in-kind consideration. The one candidate you won’t contribute to is a sure loser. ( Just ask any 
+presidential hopeful who bombs in Iowa and New Hampshire.) So front-runners and incumbents raise a lot more money than long shots. And what about spending that money? Incumbents and front
+-
+runners obviously have more cash, but they only spend a lot of it when they stand a legitimate chance of losing; otherwise, why dip into a war chest that might be more useful later on, when a more for
+-
+midable opponent appears? 
+Now picture two candidates, one intrinsically appealing and the 
+other not so. The appealing candidate raises much more money and wins easily. But was it the money that won him the votes, or was it his 
+appeal that won the votes and the money? 
+That’s a crucial question but a very hard one to answer. Voter ap -
+peal, after all, isn’t easy to quantify. How can it be measured? 
+It can’t, really—except in one special case. The key is to measure a 
+candidate agains t... himself. That is, Candidate A today is likely to 
+be similar to Candidate A two or four years hence. The same could be said for Candidate B. If only Candidate A ran against Candidate B in 
+two consecutive elections but in each case spent different amounts of money. Then, with the candidates’ appeal more or less constant, we could measure the money’s impact. 
+As it turns out, the same two candidates run against each other in 
+consecutive elections all the time—indeed, in nearly a thousand U.S. congressional races since 1972. What do the numbers have to say 
+about such cases? 
+Here’s the surprise: the amount of money spent by the candidates 
+hardly matters at all. A winning candidate can cut his spending in half 
+9 
+
+--- Page 26 ---
+FREAKONOMICS 
+and lose only 1 percent of the vote. Meanwhile, a losing candidate 
+who doubles his spending can expect to shift the vote in his favor by only that same 1 percent. What really matters for a political candidate 
+is not how much you spend; what matters is who you are. (The same 
+could be said—and will be said, in chapter 5—about parents.) Some 
+politicians are inherently attractive to voters and others simply aren’t, and no amount of money can do much about it. (Messrs. Forbes, 
+Hufﬁngton, and Golisano already know this, of course.) 
+And what about the other half of the election truism—that the 
+amount of money spent on campaign ﬁnance is obscenely huge? In a 
+typical election period that includes campaigns for the presidency, the 
+Senate, and the House of Representatives, about $1 billion is spent 
+per year—which sounds like a lot of money, unless you care to mea -
+sure it against something seemingly less important than democratic elections. 
+It is the same amount, for instance, that Americans spend every 
+year on chewing gum. 
+This isn’t a book about the cost of chewing gum versus campaign spending per se, or about disingenuous real-estate agents, or the im
+-
+pact of legalized abortion on crime. It will certainly address these sce -
+narios and dozens more, from the art of parenting to the mechanics of cheating, from the inner workings of a crack-selling gang to racial dis
+-
+crimination on The Weakest Link . What this book is about is stripping 
+a layer or two from the surface of modern life and seeing what is hap -
+pening underneath. We will ask a lot of questions, some frivolous and some about life-and-death issues. The answers may often seem odd but, after the fact, also rather obvious. We will seek out these answers 
+in the data—whether those data come in the form of schoolchildren’s 
+test scores or New York City’s crime statistics or a crack dealer’s ﬁnan
+-
+10 
+
+--- Page 27 ---
+Introduction: The Hidden Side of Everything 
+cial records. Often we will take advantage of patterns in the data that 
+were incidentally left behind, like an airplane’s sharp contrail in a high sky. It is well and good to opine or theorize about a subject, as hu
+-
+mankind is wont to do, but when moral posturing is replaced by an honest assessment of the data, the result is often a new, surprising in
+-
+sight. 
+Morality, it could be argued, represents the way that people would 
+like the world to work—whereas economics represents how it actually does work. Economics is above all a science of measurement. It com
+-
+prises an extraordinarily powerful and ﬂexible set of tools that can re -
+liably assess a thicket of information to determine the effect of any one factor, or even the whole effect. That’s what “the economy” is, after all: a thicket of information about jobs and real estate and bank
+-
+ing and investment. But the tools of economics can be just as easily applied to subjects that are more—well, more interesting . 
+This book, then, has been written from a very speciﬁc worldview, 
+based on a few fundamental ideas: 
+Incentives are the cornerstone of modern life. And understanding 
+them—or, often, ferreting them out—is the key to solving just about any riddle, from violent crime to sports cheating to online dating. 
+The conventional wisdom is often wrong. Crime didn’t keep soaring 
+in the 1990s, money alone doesn’t win elections, and—surprise— drinking eight glasses of water a day has never actually been shown to 
+do a thing for your health. Conventional wisdom is often shoddily 
+formed and devilishly difﬁcult to see through, but it can be done. 
+Dramatic effects often have distant, even subtle, causes. The answer to 
+a given riddle is not always right in front of you. Norma McCorvey had a far greater impact on crime than did the combined forces of gun 
+control, a strong economy, and innovative police strategies. So did, as 
+we shall see, a man named Oscar Danilo Blandon, aka the Johnny Appleseed of Crack. 
+11 
+
+--- Page 28 ---
+FREAKONOMICS 
+“Experts”—from criminologists to real-estate agents—use their infor -
+mational advantage to serve their own agenda. However, they can be 
+beat at their own game. And in the face of the Internet, their informa -
+tional advantage is shrinking every day—as evidenced by, among 
+other things, the falling price of cofﬁns and life-insurance premiums. 
+Knowing what to measure and how to measure it makes a complicated 
+world much less so. If you learn to look at data in the right way, you can 
+explain riddles that otherwise might have seemed impossible. Because 
+there is nothing like the sheer power of numbers to scrub away layers 
+of confusion and contradiction. 
+So the aim of this book is to explore the hidden side o f...e v e r y -
+thing. This may occasionally be a frustrating exercise. It may some -
+times feel as if we are peering at the world through a straw or even staring into a funhouse mirror; but the idea is to look at many differ
+-
+ent scenarios and examine them in a way they have rarely been exam -
+ined. In some regards, this is a strange concept for a book. Most books put forth a single theme, crisply expressed in a sentence or two, and then tell the entire story of that theme: the history of salt; the fragility 
+of democracy; the use and misuse of punctuation. This book has no 
+such unifying theme. We did consider, for about six minutes, writing a book that would revolve around a single theme—the theory and practice of applied microeconomics, anyone?—but opted instead for 
+a sort of treasure-hunt approach. Yes, this approach employs the best 
+analytical tools that economics can offer, but it also allows us to follow whatever freakish curiosities may occur to us. Thus our invented ﬁeld of study: Freakonomics. The sort of stories told in this book are not often covered in Econ 101, but that may change. Since the science of 
+economics is primarily a set of tools, as opposed to a subject matter, 
+then no subject, however offbeat, need be beyond its reach. 
+It is worth remembering that Adam Smith, the founder of classical 
+economics, was ﬁrst and foremost a philosopher. He strove to be a 
+12 
+
+--- Page 29 ---
+Introduction: The Hidden Side of Everything 
+moralist and, in doing so, became an economist. When he published 
+The Theory of Moral Sentiments in 1759, modern capitalism was just 
+getting under way. Smith was entranced by the sweeping changes 
+wrought by this new force, but it wasn’t just the numbers that inter -
+ested him. It was the human effect, the fact that economic forces were 
+vastly changing the way a person thought and behaved in a given sit -
+uation. What might lead one person to cheat or steal while another didn’t? How would one person’s seemingly innocuous choice, good or bad, affect a great number of people down the line? In Smith’s era, 
+cause and effect had begun to wildly accelerate; incentives were mag
+-
+niﬁed tenfold. The gravity and shock of these changes were as over -
+whelming to the citizens of his time as the gravity and shock of 
+modern life may seem to us today. 
+Smith’s true subject was the friction between individual desire and 
+societal norms. The economic historian Robert Heilbroner, writing in The Worldly Philosophers , wondered how Smith was able to separate 
+the doings of man, a creature of self-interest, from the greater moral plane in which man operated. “Smith held that the answer lay in our ability to put ourselves in the position of a third person, an impartial observer,” Heilbroner wrote, “and in this way to form a notion of the 
+objectiv e... merits of a case.” 
+Consider yourself, then, in the company of a third person—or, if 
+you will, a pair of third people—eager to explore the objective merits 
+of interesting cases. These explorations generally begin with the ask -
+ing of a simple unasked question. Such as: what do schoolteachers and sumo wrestlers have in common? 
+13 
+
+--- Page 30 ---
+
+
+--- Page 31 ---
+1 What Do Schoolteachers 
+and Sumo Wrestlers 
+Have in Common? 
+Imagine for a moment that you are the manager of a day-care center. 
+You have a clearly stated policy that children are supposed to be picked up by 4 p.m. But very often parents are late. The result: at day’s 
+end, you have some anxious children and at least one teacher who 
+must wait around for the parents to arrive. What to do? 
+A pair of economists who heard of this dilemma—it turned out to 
+be a rather common one—offered a solution: ﬁne the tardy parents. Why, after all, should the day-care center take care of these kids for 
+free? 
+The economists decided to test their solution by conducting a 
+study of ten day-care centers in Haifa, Israel. The study lasted twenty 
+weeks, but the ﬁne was not introduced immediately. For the ﬁrst 
+four weeks, the economists simply kept track of the number of par -
+ents who came late; there were, on average, eight late pickups per 
+week per day-care center. In the ﬁfth week, the ﬁne was enacted. It was announced that any parent arriving more than ten minutes late 

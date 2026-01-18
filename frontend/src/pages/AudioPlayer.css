@@ -1,0 +1,543 @@
+/* AudioPlayer Page Styles */
+
+.audio-player-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 20px;
+  overflow: hidden;
+}
+
+/* Gradient background */
+.audio-bg-gradient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    160deg,
+    #0a0806 0%,
+    #1a1510 40%,
+    #0d0a07 100%
+  );
+  z-index: -3;
+}
+
+/* Blurred cover background */
+.audio-bg-cover {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(100px) saturate(1.5);
+  opacity: 0.3;
+  z-index: -2;
+}
+
+/* Back button */
+.audio-player-page .back-button {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.audio-player-page .back-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-4px);
+}
+
+/* Main content */
+.audio-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 600px;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Header with cover and info */
+.audio-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+.audio-cover-small {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.audio-cover-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-placeholder-small {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e8c170, #d4a84b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1510;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cover with vinyl effect */
+.audio-cover-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+}
+
+.audio-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.audio-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #2a2520 0%, #1a1510 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Sora', sans-serif;
+  font-size: 1.1rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Vinyl record effect */
+.vinyl-record {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-30%, -50%);
+  width: 260px;
+  height: 260px;
+  background: linear-gradient(
+    135deg,
+    #1a1a1a 0%,
+    #2d2d2d 20%,
+    #1a1a1a 40%,
+    #2d2d2d 60%,
+    #1a1a1a 80%,
+    #2d2d2d 100%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  animation: spin 8s linear infinite paused;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.vinyl-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(145deg, #e8c170, #d4a84b);
+  border-radius: 50%;
+}
+
+.vinyl-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: #1a1510;
+  border-radius: 50%;
+}
+
+/* Book info */
+.audio-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.audio-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.audio-author {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 4px 0;
+}
+
+.audio-meta {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+/* Script container */
+.script-container {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.script-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.script-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.toggle-script-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-script-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.script-content {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.dialogue-line {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.dialogue-line.naval {
+  background: rgba(232, 193, 112, 0.1);
+  border-left: 3px solid #e8c170;
+}
+
+.dialogue-line.chris {
+  background: rgba(147, 197, 253, 0.1);
+  border-left: 3px solid #93c5fd;
+}
+
+.speaker-name {
+  display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.dialogue-line.naval .speaker-name {
+  color: #e8c170;
+}
+
+.dialogue-line.chris .speaker-name {
+  color: #93c5fd;
+}
+
+.speaker-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* Scrollbar for script */
+.script-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.script-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.script-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.script-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Player container */
+.player-container {
+  width: 100%;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+}
+
+/* Progress bar */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e8c170, #d4a84b);
+  border-radius: 3px;
+  transition: width 0.1s ease;
+}
+
+/* Time display */
+.time-display {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Player controls */
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-btn.secondary {
+  color: rgba(255, 255, 255, 0.6);
+  padding: 8px;
+}
+
+.control-btn.secondary:hover {
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.1);
+}
+
+.control-btn.primary {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #e8c170 0%, #d4a84b 100%);
+  border-radius: 50%;
+  color: #1a1510;
+  box-shadow: 0 4px 20px rgba(232, 193, 112, 0.4);
+}
+
+.control-btn.primary:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 28px rgba(232, 193, 112, 0.5);
+}
+
+.play-btn svg {
+  margin-left: 4px;
+}
+
+/* Extra controls */
+.extra-controls {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.extra-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.extra-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Generating status */
+.generating-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(232, 193, 112, 0.1);
+  border: 1px solid rgba(232, 193, 112, 0.2);
+  border-radius: 50px;
+  color: #e8c170;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+}
+
+.status-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(232, 193, 112, 0.3);
+  border-top-color: #e8c170;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error container */
+.audio-player-page .error-container {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.audio-player-page .error-container h2 {
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .audio-player-page .back-button {
+    top: 20px;
+    left: 20px;
+    padding: 10px 16px;
+  }
+
+  .audio-cover-container {
+    width: 220px;
+    height: 220px;
+  }
+
+  .vinyl-record {
+    width: 200px;
+    height: 200px;
+  }
+
+  .vinyl-inner {
+    width: 60px;
+    height: 60px;
+  }
+
+  .audio-title {
+    font-size: 1.3rem;
+  }
+
+  .player-container {
+    padding: 20px;
+  }
+
+  .control-btn.primary {
+    width: 56px;
+    height: 56px;
+  }
+}
+
