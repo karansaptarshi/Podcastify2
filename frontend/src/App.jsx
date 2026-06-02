@@ -3,23 +3,30 @@ import { useState, useEffect } from 'react'
 import BookAutocomplete from './components/BookAutocomplete'
 import './App.css'
 
+/**
+ * App — the home page.
+ *
+ * Just a title, a tagline, and a search box. When the user picks a book from
+ * the search box we navigate to the details page and hand the book along in
+ * the router's `state` so the next page can read it.
+ */
 function App() {
   const navigate = useNavigate()
-  const [showContent, setShowContent] = useState(false)
 
-  // Show content after a brief delay
+  // Drives the fade-in: flips to true a moment after mount.
+  const [showContent, setShowContent] = useState(false)
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 100)
     return () => clearTimeout(timer)
   }, [])
 
-  // Handle book selection - navigate to book details page
+  // BookAutocomplete calls this with the chosen book.
   const handleBookSelect = (book) => {
     navigate('/book', { state: { book } })
   }
 
-  // Split title for letter animation
-  const titleLetters = "Podcastify".split('')
+  // Each letter is its own <span> so CSS can animate them individually.
+  const titleLetters = 'Podcastify'.split('')
 
   return (
     <div className="homepage">
@@ -48,7 +55,7 @@ function App() {
           <span className="glitch-layer glitch-2" aria-hidden="true">Podcastify</span>
         </h1>
         
-        <p className="tagline">Convert any book into a podcast</p>
+        <p className="tagline">Listen to any book as a Podcast</p>
         
         <div className="search-container">
           <BookAutocomplete onSelect={handleBookSelect} />

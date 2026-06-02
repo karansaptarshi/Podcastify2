@@ -335,6 +335,46 @@
   margin: 0;
 }
 
+/* Opening hook */
+.hook-container {
+  width: 100%;
+  padding: 20px;
+  background: rgba(232, 193, 112, 0.08);
+  border: 1px solid rgba(232, 193, 112, 0.2);
+  border-radius: 20px;
+}
+
+.hook-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.hook-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f4d58f;
+  margin: 0;
+}
+
+.hook-header span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.hook-container p {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
 /* Scrollbar for script */
 .script-content::-webkit-scrollbar {
   width: 6px;
@@ -369,15 +409,36 @@
   height: 6px;
   background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
-  overflow: hidden;
   cursor: pointer;
+  position: relative;
+}
+
+.progress-bar:hover {
+  height: 8px;
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #e8c170, #d4a84b);
   border-radius: 3px;
-  transition: width 0.1s ease;
+  transition: width 0.05s linear;
+}
+
+.progress-thumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: #e8c170;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(232, 193, 112, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.progress-bar:hover .progress-thumb {
+  opacity: 1;
 }
 
 /* Time display */
@@ -433,8 +494,17 @@
   box-shadow: 0 6px 28px rgba(232, 193, 112, 0.5);
 }
 
+.control-btn.primary.playing {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(232, 193, 112, 0.4); }
+  50% { box-shadow: 0 4px 32px rgba(232, 193, 112, 0.7); }
+}
+
 .play-btn svg {
-  margin-left: 4px;
+  margin-left: 2px;
 }
 
 /* Extra controls */

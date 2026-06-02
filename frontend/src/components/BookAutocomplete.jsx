@@ -2,425 +2,399 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import './BookAutocomplete.css'
 
 /**
- * BookAutocomplete - A reusable autocomplete input for searching books
- * Uses Open Library Search API with debouncing, caching, and keyboard navigation
+ * BookAutocomplete — the search box on the home page.
+ *
+ * As the user types we query the public Open Library search API
+ * (https://openlibrary.org/search.json), rank the results so the closest
+ * title matches float to the top, and show the best 6 as a dropdown.
+ *
+ * Performance touches, from top to bottom of this file:
+ *   - normalize():        clean up text so matching is forgiving
+ *   - editDistance/...:   fuzzy matching so small typos still match
+ *   - scoreBook/rankBooks:rank + de-duplicate results
+ *   - cache + getCachedPreview: reuse past results to feel instant
+ *   - the component:      debounces typing, aborts stale requests, draws UI
+ *
+ * Note: this talks to Open Library directly — it does NOT use our own
+ * backend. So search keeps working even with no server running.
  */
 
-// In-memory cache to avoid repeat API requests
-const searchCache = new Map()
+// ---------------------------------------------------------------------------
+// Search helpers (pure functions, no React)
+// ---------------------------------------------------------------------------
 
-/**
- * Calculate how well a book title matches the search query
- * Returns a score between 0 and 100
- */
-const calculateTitleMatch = (title, query) => {
-  if (!title || !query) return 0
-  
-  const normalizedTitle = title.toLowerCase().trim()
-  const normalizedQuery = query.toLowerCase().trim()
-  
-  // Exact match - highest score
-  if (normalizedTitle === normalizedQuery) return 100
-  
-  // Title starts with exact query
-  if (normalizedTitle.startsWith(normalizedQuery)) return 95
-  
-  // Query starts with title (user typed more than title)
-  if (normalizedQuery.startsWith(normalizedTitle)) return 90
-  
-  // Title contains query as a complete phrase
-  if (normalizedTitle.includes(normalizedQuery)) return 85
-  
-  // Word-by-word matching
-  const queryWords = normalizedQuery.split(/\s+/).filter(w => w.length > 1)
-  const titleWords = normalizedTitle.split(/\s+/)
-  
-  if (queryWords.length === 0) return 0
-  
-  let matchedWords = 0
-  let partialMatches = 0
-  
-  for (const qWord of queryWords) {
-    let foundExact = false
-    let foundPartial = false
-    
-    for (const tWord of titleWords) {
-      if (tWord === qWord) {
-        foundExact = true
-        break
-      } else if (tWord.startsWith(qWord) || qWord.startsWith(tWord)) {
-        foundPartial = true
-      }
+const cache = new Map()
+const PLACEHOLDER = 'Search for any book...'
+const SEARCH_DELAY = 80
+const CACHE_VERSION = 'books-v5'
+
+const normalize = (value = '') =>
+  value
+    .toLowerCase()
+    .replace(/['']/g, '')
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+const editDistance = (a, b) => {
+  if (Math.abs(a.length - b.length) > 1) return 2
+
+  let edits = 0
+  let i = 0
+  let j = 0
+
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) {
+      i += 1
+      j += 1
+    } else if (edits === 0 && a.length > b.length) {
+      edits += 1
+      i += 1
+    } else if (edits === 0 && b.length > a.length) {
+      edits += 1
+      j += 1
+    } else if (edits === 0) {
+      edits += 1
+      i += 1
+      j += 1
+    } else {
+      return 2
     }
-    
-    if (foundExact) matchedWords++
-    else if (foundPartial) partialMatches++
   }
-  
-  // Score based on word matches
-  const exactRatio = matchedWords / queryWords.length
-  const partialRatio = partialMatches / queryWords.length
-  
-  return Math.round(exactRatio * 70 + partialRatio * 20)
+
+  return edits + (a.length - i) + (b.length - j)
 }
 
-// Typewriter text to cycle through
-const TYPEWRITER_TEXT = "Search for any book..."
-const TYPING_SPEED = 80      // ms per character when typing
-const DELETING_SPEED = 40    // ms per character when deleting
-const PAUSE_AFTER_TYPE = 2000 // pause after fully typed
-const PAUSE_AFTER_DELETE = 500 // pause after fully deleted
+const wordMatches = (queryWord, titleWord) => {
+  if (titleWord.startsWith(queryWord)) return true
+  if (queryWord.length < 5) return false
 
-export default function BookAutocomplete({ 
-  onSelect,
-  className = ""
-}) {
-  const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(-1)
-  const [isFocused, setIsFocused] = useState(false)
-  
-  // Typewriter animation state
-  const [displayPlaceholder, setDisplayPlaceholder] = useState('')
-  const [isTyping, setIsTyping] = useState(true)
-  
-  // Refs for managing async operations and DOM elements
-  const abortControllerRef = useRef(null)
-  const debounceTimerRef = useRef(null)
-  const inputRef = useRef(null)
-  const listRef = useRef(null)
+  const comparableTitle = titleWord.slice(0, queryWord.length)
+  return editDistance(queryWord, comparableTitle) <= 1
+}
 
-  /**
-   * Typewriter effect - types and untypes the placeholder text
-   */
-  useEffect(() => {
-    // Don't animate if user has typed something or input is focused
-    if (query.length > 0 || isFocused) return
+const searchTermsFor = (q) => {
+  const words = q.split(' ')
+  const terms = [q]
 
-    let timeout
+  if (words.length > 1) {
+    terms.push(words.slice(0, -1).join(' '))
+  }
 
-    if (isTyping) {
-      // Typing phase
-      if (displayPlaceholder.length < TYPEWRITER_TEXT.length) {
-        timeout = setTimeout(() => {
-          setDisplayPlaceholder(TYPEWRITER_TEXT.slice(0, displayPlaceholder.length + 1))
-        }, TYPING_SPEED)
-      } else {
-        // Finished typing, pause then start deleting
-        timeout = setTimeout(() => {
-          setIsTyping(false)
-        }, PAUSE_AFTER_TYPE)
-      }
-    } else {
-      // Deleting phase
-      if (displayPlaceholder.length > 0) {
-        timeout = setTimeout(() => {
-          setDisplayPlaceholder(displayPlaceholder.slice(0, -1))
-        }, DELETING_SPEED)
-      } else {
-        // Finished deleting, pause then start typing again
-        timeout = setTimeout(() => {
-          setIsTyping(true)
-        }, PAUSE_AFTER_DELETE)
+  return [...new Set(terms.filter(term => term.length >= 2))]
+}
+
+const toBook = (book) => ({
+  key: book.key,
+  title: book.title,
+  authors: book.author_name?.join(', ') || 'Unknown author',
+  year: book.first_publish_year || null,
+  cover_i: book.cover_i || null,
+  cover_edition_key: book.cover_edition_key || null,
+  edition_key: book.edition_key || null,
+  isbn: book.isbn || null,
+  lccn: book.lccn || null,
+  editionCount: book.edition_count || 0,
+  expectedPages: book.number_of_pages_median || null,
+})
+
+const scoreBook = (book, q) => {
+  const title = normalize(book.title)
+  if (!title || !q) return -1
+
+  if (title === q) return 100000
+  if (title.startsWith(q)) return 80000 - title.length
+  if (title.includes(q)) return 50000 - title.indexOf(q) * 100
+
+  const queryWords = q.split(' ')
+  const titleWords = title.split(' ')
+
+  if (queryWords.length > 1) {
+    for (let i = 0; i <= titleWords.length - queryWords.length; i += 1) {
+      const contiguousMatch = queryWords.every((queryWord, offset) =>
+        wordMatches(queryWord, titleWords[i + offset])
+      )
+
+      if (contiguousMatch) {
+        return 30000 - i * 500 - Math.abs(title.length - q.length) * 8
       }
     }
 
-    return () => clearTimeout(timeout)
-  }, [displayPlaceholder, isTyping, query, isFocused])
+    return -1
+  }
 
-  /**
-   * Fetch books from Open Library API
-   * Uses general search (q=) for better autocomplete results
-   */
-  const fetchBooks = useCallback(async (searchQuery) => {
-    const cleanQuery = searchQuery.trim()
-    
-    // Check cache first
-    const cacheKey = cleanQuery.toLowerCase()
-    if (searchCache.has(cacheKey)) {
-      setSuggestions(searchCache.get(cacheKey))
-      setIsLoading(false)
-      setIsOpen(true)
+  const prefixMatches = queryWords.filter(queryWord =>
+    titleWords.some(titleWord => wordMatches(queryWord, titleWord))
+  ).length
+
+  if (prefixMatches !== queryWords.length) return -1
+
+  const firstMatchIndex = titleWords.findIndex(word => word.startsWith(queryWords[0]))
+  const distancePenalty = firstMatchIndex < 0 ? 0 : firstMatchIndex * 250
+  const lengthPenalty = Math.abs(title.length - q.length) * 8
+  const popularityBoost = Math.min(book.edition_count || book.editionCount || 0, 40)
+
+  return 5000 - distancePenalty - lengthPenalty + popularityBoost
+}
+
+const rankBooks = (books, q) => {
+  const seen = new Set()
+
+  return books
+    .map(book => ({ ...toBook(book), score: scoreBook(book, q) }))
+    .filter(book => book.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .filter(book => {
+      const key = normalize(book.title)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .slice(0, 6)
+}
+
+const cacheKey = (q) => `${CACHE_VERSION}:${q}`
+
+const getCachedPreview = (q) => {
+  let bestMatch = []
+  let bestLength = 0
+
+  for (const [cachedQuery, books] of cache) {
+    if (!cachedQuery.startsWith(CACHE_VERSION)) continue
+    const query = cachedQuery.slice(CACHE_VERSION.length + 1)
+
+    if (q.startsWith(query) && query.length > bestLength) {
+      bestMatch = books
+      bestLength = query.length
+    }
+  }
+
+  return bestMatch
+    .map(book => ({ ...book, score: scoreBook(book, q) }))
+    .filter(book => book.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6)
+}
+
+export default function BookAutocomplete({ onSelect, className = '' }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [active, setActive] = useState(-1)
+  const [focused, setFocused] = useState(false)
+  const [placeholder, setPlaceholder] = useState('')
+  const [typing, setTyping] = useState(true)
+
+  const abortRef = useRef(null)
+  const debounceRef = useRef(null)
+  const inputRef = useRef(null)
+  const listRef = useRef(null)
+  const latestQueryRef = useRef('')
+
+  // Typewriter placeholder
+  useEffect(() => {
+    if (query || focused) return
+    const next = typing
+      ? PLACEHOLDER.slice(0, placeholder.length + 1)
+      : placeholder.slice(0, -1)
+    const done = typing ? placeholder === PLACEHOLDER : placeholder === ''
+    const delay = done ? (typing ? 2000 : 500) : (typing ? 80 : 40)
+    const t = setTimeout(() => {
+      if (done) setTyping(!typing)
+      else setPlaceholder(next)
+    }, delay)
+    return () => clearTimeout(t)
+  }, [placeholder, typing, query, focused])
+
+  const search = useCallback(async (raw) => {
+    const q = normalize(raw)
+    if (!q) return
+
+    const key = cacheKey(q)
+    if (cache.has(key)) {
+      setResults(cache.get(key))
+      setLoading(false)
+      setOpen(true)
       return
     }
 
-    // Cancel any in-flight request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-
-    abortControllerRef.current = new AbortController()
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+    latestQueryRef.current = q
 
     try {
-      // Use general 'q' search - works much better for autocomplete
-      // Fetch more results to filter and rank them client-side
-      const params = new URLSearchParams({
-        q: cleanQuery,
-        fields: 'title,author_name,first_publish_year,key,cover_i,isbn,edition_count,ratings_average,number_of_pages_median',
-        limit: '25'  // Get more results to filter
-      })
-
-      const response = await fetch(
-        `https://openlibrary.org/search.json?${params}`,
-        { signal: abortControllerRef.current.signal }
-      )
-
-      if (!response.ok) throw new Error('Search failed')
-
-      const data = await response.json()
-      
-      // Transform and score results
-      let results = data.docs
-        .map(book => {
-          const titleScore = calculateTitleMatch(book.title, cleanQuery)
-          const popularityScore = Math.min((book.edition_count || 0) / 100, 1) * 20 // Max 20 points
-          const ratingScore = (book.ratings_average || 0) * 2 // Max 10 points
-          const hasYear = book.first_publish_year ? 5 : 0
-          const hasCover = book.cover_i ? 5 : 0
-          
-          return {
-            key: book.key,
-            title: book.title,
-            authors: book.author_name?.join(', ') || 'Unknown author',
-            year: book.first_publish_year || null,
-            cover_i: book.cover_i || null,
-            isbn: book.isbn || null,
-            editionCount: book.edition_count || 0,
-            // Combined relevance score
-            score: titleScore + popularityScore + ratingScore + hasYear + hasCover,
-            titleScore
-          }
+      const responses = await Promise.all(searchTermsFor(q).map(async (term) => {
+        const params = new URLSearchParams({
+          title: term,
+          fields: 'key,title,author_name,first_publish_year,cover_i,cover_edition_key,edition_key,isbn,lccn,edition_count,number_of_pages_median',
+          limit: '25',
         })
-        // Filter: must have reasonable title match OR be very popular
-        .filter(book => book.titleScore >= 20 || book.editionCount > 50)
-        // Sort by combined score
-        .sort((a, b) => b.score - a.score)
-        // Remove duplicates (same title, different editions)
-        .filter((book, index, arr) => {
-          const normalizedTitle = book.title.toLowerCase().replace(/[^\w\s]/g, '')
-          return index === arr.findIndex(b => 
-            b.title.toLowerCase().replace(/[^\w\s]/g, '') === normalizedTitle
-          )
+        const res = await fetch(`https://openlibrary.org/search.json?${params}`, {
+          signal: abortRef.current.signal,
         })
-        // Take top 6
-        .slice(0, 6)
+        if (!res.ok) throw new Error('Search failed')
+        return res.json()
+      }))
+      if (latestQueryRef.current !== q) return
 
-      // Cache the results
-      searchCache.set(cacheKey, results)
-      
-      setSuggestions(results)
-      setIsOpen(true)
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('Search error:', error)
-        setSuggestions([])
+      const docs = responses.flatMap(data => data.docs || [])
+      const ranked = rankBooks(docs, q)
+
+      cache.set(key, ranked)
+      setResults(ranked)
+      setOpen(true)
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        console.error('Search error:', e)
+        setResults([])
       }
     } finally {
-      setIsLoading(false)
+      if (latestQueryRef.current !== q) return
+      setLoading(false)
     }
   }, [])
 
-  /**
-   * Handle input changes with debouncing
-   * Triggers search after 2+ characters for faster results
-   */
-  const handleInputChange = (e) => {
-    const value = e.target.value
-    setQuery(value)
-    setActiveIndex(-1)
+  const handleChange = (e) => {
+    const v = e.target.value
+    setQuery(v)
+    setActive(-1)
+    clearTimeout(debounceRef.current)
+    abortRef.current?.abort()
 
-    // Clear existing debounce timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-    }
+    const q = normalize(v)
+    latestQueryRef.current = q
 
-    // Reset state for very short queries
-    if (value.trim().length < 2) {
-      setSuggestions([])
-      setIsOpen(false)
-      setIsLoading(false)
+    if (!q) {
+      setResults([])
+      setOpen(false)
+      setLoading(false)
       return
     }
 
-    // Show loading immediately
-    setIsLoading(true)
-    
-    // Debounce search - shorter delay for better responsiveness
-    debounceTimerRef.current = setTimeout(() => {
-      fetchBooks(value)
-    }, 200)
+    const key = cacheKey(q)
+    if (cache.has(key)) {
+      setResults(cache.get(key))
+      setOpen(true)
+      setLoading(false)
+      return
+    }
+
+    const preview = getCachedPreview(q)
+    setResults(preview.length ? preview : prev => prev.filter(book => scoreBook(book, q) > 0))
+    setOpen(true)
+    setLoading(true)
+    debounceRef.current = setTimeout(() => search(v), SEARCH_DELAY)
   }
 
-  /**
-   * Select a book suggestion
-   */
-  const selectSuggestion = (book) => {
+  const select = (book) => {
     setQuery(book.title)
-    setSuggestions([])
-    setIsOpen(false)
-    setActiveIndex(-1)
+    setResults([])
+    setOpen(false)
+    setActive(-1)
     onSelect?.(book)
     inputRef.current?.focus()
   }
 
-  /**
-   * Keyboard navigation handler
-   */
-  const handleKeyDown = (e) => {
-    if (!isOpen || suggestions.length === 0) return
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        setActiveIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        )
-        break
-        
-      case 'ArrowUp':
-        e.preventDefault()
-        setActiveIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        )
-        break
-        
-      case 'Enter':
-      case 'Tab':
-        if (activeIndex >= 0 && activeIndex < suggestions.length) {
-          e.preventDefault()
-          selectSuggestion(suggestions[activeIndex])
-        }
-        break
-        
-      case 'Escape':
-        setIsOpen(false)
-        setActiveIndex(-1)
-        break
+  const handleKey = (e) => {
+    if (!open || !results.length) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActive(p => (p + 1) % results.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActive(p => (p <= 0 ? results.length - 1 : p - 1))
+    } else if ((e.key === 'Enter' || e.key === 'Tab') && active >= 0) {
+      e.preventDefault()
+      select(results[active])
+    } else if (e.key === 'Escape') {
+      setOpen(false)
+      setActive(-1)
     }
   }
 
-  /**
-   * Close dropdown when clicking outside
-   */
+  // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const onClick = (e) => {
       if (
-        inputRef.current && 
-        !inputRef.current.contains(e.target) &&
-        listRef.current &&
-        !listRef.current.contains(e.target)
-      ) {
-        setIsOpen(false)
-      }
+        !inputRef.current?.contains(e.target) &&
+        !listRef.current?.contains(e.target)
+      ) setOpen(false)
     }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
   }, [])
 
-  /**
-   * Scroll active suggestion into view
-   */
+  // Scroll active into view
   useEffect(() => {
-    if (activeIndex >= 0 && listRef.current) {
-      const activeElement = listRef.current.children[activeIndex]
-      activeElement?.scrollIntoView({ block: 'nearest' })
-    }
-  }, [activeIndex])
+    if (active >= 0) listRef.current?.children[active]?.scrollIntoView({ block: 'nearest' })
+  }, [active])
 
-  /**
-   * Cleanup on unmount
-   */
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
-      if (abortControllerRef.current) abortControllerRef.current.abort()
-    }
+  // Cleanup
+  useEffect(() => () => {
+    clearTimeout(debounceRef.current)
+    abortRef.current?.abort()
   }, [])
 
   return (
     <div className={`book-autocomplete ${className}`}>
       <div className="autocomplete-input-wrapper">
-        <svg 
-          className="search-icon" 
-          width="20" 
-          height="20" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2"
-        >
+        <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.35-4.35" />
         </svg>
-        
         <input
           ref={inputRef}
           type="text"
           value={query}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+          onKeyDown={handleKey}
           onFocus={() => {
-            setIsFocused(true)
-            if (query.trim().length >= 2 && suggestions.length > 0) setIsOpen(true)
+            setFocused(true)
+            if (query.trim() && results.length) setOpen(true)
           }}
-          onBlur={() => setIsFocused(false)}
-          placeholder={isFocused || query.length > 0 ? "Search for any book..." : displayPlaceholder}
+          onBlur={() => setFocused(false)}
+          placeholder={focused || query ? PLACEHOLDER : placeholder}
           className="autocomplete-input"
           autoComplete="off"
           aria-label="Search for books"
-          aria-expanded={isOpen}
+          aria-expanded={open}
           aria-haspopup="listbox"
           aria-autocomplete="list"
         />
-
-        {/* Loading spinner */}
-        {isLoading && (
-          <div className="loading-spinner" aria-label="Loading">
-            <div className="spinner"></div>
-          </div>
-        )}
+        {loading && <div className="loading-spinner"><div className="spinner" /></div>}
       </div>
 
-      {/* Suggestions dropdown */}
-      {isOpen && (
-        <ul 
-          ref={listRef}
-          className="suggestions-list"
-          role="listbox"
-        >
-          {suggestions.length === 0 && !isLoading ? (
+      {open && (
+        <ul ref={listRef} className="suggestions-list" role="listbox">
+          {!results.length && (loading || query.trim()) ? (
+            <li className="suggestion-empty">Keep typing for better matches</li>
+          ) : !results.length ? (
             <li className="suggestion-empty">No books found</li>
-          ) : (
-            suggestions.map((book, index) => (
-              <li
-                key={book.key}
-                role="option"
-                aria-selected={index === activeIndex}
-                className={`suggestion-item ${index === activeIndex ? 'active' : ''}`}
-                onClick={() => selectSuggestion(book)}
-                onMouseEnter={() => {
-                  setActiveIndex(index)
-                  // Preload cover image on hover for faster page load
-                  if (book.cover_i) {
-                    const img = new Image()
-                    img.src = `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-                  }
-                }}
-              >
-                <span className="suggestion-title">{book.title}</span>
-                <span className="suggestion-meta">
-                  {book.authors}
-                  {book.year && ` • ${book.year}`}
-                </span>
-              </li>
-            ))
-          )}
+          ) : results.map((book, i) => (
+            <li
+              key={book.key}
+              role="option"
+              aria-selected={i === active}
+              className={`suggestion-item ${i === active ? 'active' : ''}`}
+              onClick={() => select(book)}
+              onMouseEnter={() => {
+                setActive(i)
+                if (book.cover_i) {
+                  const img = new Image()
+                  img.src = `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                }
+              }}
+            >
+              <span className="suggestion-title">{book.title}</span>
+              <span className="suggestion-meta">
+                {book.authors}{book.year && ` • ${book.year}`}
+              </span>
+            </li>
+          ))}
         </ul>
       )}
     </div>
   )
 }
-
