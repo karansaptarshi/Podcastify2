@@ -15,6 +15,7 @@ Optional environment variables:
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 
 import httpx
@@ -23,8 +24,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-_DEFAULT_MODEL = "moonshotai/kimi-k2.6:free"
+_DEFAULT_MODEL = "moonshotai/kimi-k2.6"
 _DEFAULT_APP_NAME = "Podcastify"
+_PLACEHOLDER_DIALOGUE = frozenset({"line of dialogue", "...", ""})
 
 
 class HookGenerationError(Exception):
@@ -70,26 +72,70 @@ def _openrouter_headers() -> dict[str, str]:
     return headers
 
 
+def _is_placeholder_line(line: str) -> bool:
+    _, _, text = line.partition(":")
+    return text.strip().lower() in _PLACEHOLDER_DIALOGUE
+
+
+def _extract_hook_dialogue(raw: str) -> str:
+    """Keep only CHRIS:/NAVAL: lines when the model adds extra text."""
+    lines: list[str] = []
+    for line in raw.splitlines():
+        stripped = line.strip()
+        if re.match(r"^(CHRIS|NAVAL)\s*:", stripped, re.IGNORECASE):
+            speaker, _, text = stripped.partition(":")
+            lines.append(f"{speaker.upper()}: {text.strip()}")
+
+    if lines:
+        filtered = [line for line in lines if not _is_placeholder_line(line)]
+        return "\n".join(filtered or lines)
+
+    match = re.search(r"(?m)^(CHRIS|NAVAL)\s*:", raw, re.IGNORECASE)
+    if match:
+        return _extract_hook_dialogue(raw[match.start() :])
+
+    return raw.strip()
+
+
 def _hook_prompt(book_name: str) -> list[dict[str, str]]:
     return [
         {
             "role": "system",
             "content": (
-                "You write vivid, non-cliche podcast cold opens for a two-host "
-                "book podcast with hosts Chris and Naval. Tease, do not summarize."
+                "You write vivid, non-cliche podcast intros for a two-host "
+                "book podcast with hosts Chris and Naval. Imagine the book itself "
+                "has been transformed into a podcast conversation: capture its "
+                "promise, mood, and central question rather than reporting facts "
+                "about it. Tease, do not summarize. "
+                "Naval should sound curious, skeptical, and question-led; Chris "
+                "should do most of the answering, explaining, and framing. "
+                "Do not make both hosts take turns summarizing the book. "
+                "Output ONLY speaker-labelled dialogue. Never explain your process "
+                "or describe the user's request. Every line must start with CHRIS: or NAVAL:."
             ),
         },
         {
             "role": "user",
             "content": (
-                "You write a ~60-second cold-open hook for a two-host book "
+                "You write a ~60-second intro for a two-host book "
                 f"podcast Chris and Naval for the book {book_name}. "
-                "Open with a vivid real life scenario, a sharp question, or a surprising "
-                "claim that dramatizes the book's central tension. Make it "
+                "Think as if you are turning the book into podcast form, and this "
+                "is the intro that invites the listener into its world. Open with "
+                "the feeling, problem, or question the listener is about to live "
+                "inside, not a researched anecdote about the author, publication, "
+                "sales, translations, historical reception, or specific scenes. "
+                "Do not cite facts you cannot know from the title. Do not say "
+                "\"the book starts with\" or make claims about what the author "
+                "does on a specific page. Make it intimate, conversational, and "
                 "non-cliche. Tease, don't summarize. End by naming the book and "
-                "promising what's ahead. You may invent a framing scenario, but "
-                "do NOT invent facts about the book's actual content. ~200 words. "
-                "Return only the spoken hook, no labels and no markdown."
+                "promising what's ahead. ~160 words. "
+                "Shape the conversation so NAVAL mostly asks crisp, curious follow-up "
+                "questions or challenges assumptions, while CHRIS gives the main "
+                "answers and builds the tension. Avoid alternating two explanatory "
+                "monologues about the book. "
+                "Return only speaker-labelled dialogue lines, no markdown, in this exact format:\n"
+                "CHRIS: line of dialogue\n"
+                "NAVAL: line of dialogue"
             ),
         },
     ]
@@ -97,7 +143,7 @@ def _hook_prompt(book_name: str) -> list[dict[str, str]]:
 
 async def generate_book_hook(book_name: str) -> GeneratedHook:
     """Generate a short opening hook from a book name."""
-    clean_book_name = book_name.strip()
+    clean_book_name = book_name.strip() if isinstance(book_name, str) else ""
     if not clean_book_name:
         raise HookGenerationError("Book name is required")
 
@@ -105,12 +151,13 @@ async def generate_book_hook(book_name: str) -> GeneratedHook:
     payload = {
         "model": model,
         "messages": _hook_prompt(clean_book_name),
-        "temperature": 0.9,
-        "max_tokens": 220,
+        "temperature": 0.7,
+        "max_tokens": 800,
+        "reasoning": {"effort": "none", "exclude": True},
     }
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
                 _OPENROUTER_URL,
                 headers=_openrouter_headers(),
@@ -124,14 +171,17 @@ async def generate_book_hook(book_name: str) -> GeneratedHook:
         raise HookGenerationError(f"Could not reach OpenRouter: {exc}") from exc
 
     data = response.json()
-    hook = (
+    content = (
         data.get("choices", [{}])[0]
         .get("message", {})
-        .get("content", "")
-        .strip()
+        .get("content")
     )
+    raw_hook = content.strip() if isinstance(content, str) else ""
+    hook = _extract_hook_dialogue(raw_hook)
     if not hook:
         raise HookGenerationError("OpenRouter returned an empty hook")
+    if not re.search(r"^(CHRIS|NAVAL)\s*:", hook, re.MULTILINE | re.IGNORECASE):
+        raise HookGenerationError("OpenRouter returned text without hook dialogue")
 
     return GeneratedHook(book_name=clean_book_name, hook=hook, model=model)
 

@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import PodcastPlayer from '../components/PodcastPlayer'
+import { getBookPreparation } from '../api/bookPreparation'
+import { generateBookHook, renderHookLineAudio, streamBookChunkAudio } from '../api/hook'
 import './AudioPlayer.css'
 
 // Turn a number of seconds into "m:ss" (e.g. 75 -> "1:15").
@@ -29,6 +31,32 @@ function parseScript(script) {
   return dialogues
 }
 
+function mergeUrls(currentUrls, nextUrls = []) {
+  const seen = new Set(currentUrls)
+  const merged = [...currentUrls]
+
+  for (const url of nextUrls) {
+    if (!url || seen.has(url)) continue
+    seen.add(url)
+    merged.push(url)
+  }
+
+  return merged
+}
+
+function mergeClips(currentClips, nextClips = []) {
+  const seen = new Set(currentClips.map((clip) => clip.audio_url))
+  const merged = [...currentClips]
+
+  for (const clip of nextClips) {
+    if (!clip?.audio_url || seen.has(clip.audio_url)) continue
+    seen.add(clip.audio_url)
+    merged.push(clip)
+  }
+
+  return merged
+}
+
 /**
  * AudioPlayer — the third page.
  *
@@ -39,20 +67,94 @@ function parseScript(script) {
 export default function AudioPlayer() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { book, pdfInfo, scriptInfo, audioInfo, podcastScope, hookInfo, hookUrl } = location.state || {}
+  const {
+    book,
+    pdfInfo,
+    scriptInfo,
+    audioInfo,
+    podcastScope,
+    hookInfo: initialHookInfo,
+    hookUrl: initialHookUrl,
+    storedPdf,
+    preparationKey,
+    coverUrl: initialCoverUrl,
+  } = location.state || {}
 
   const audioRef = useRef(null)
   const progressRef = useRef(null)
+  const requestedFullBookAudioRef = useRef(false)
+  const preparationJobRef = useRef(null)
+  const initialHookAudioUrl = initialHookUrl || initialHookInfo?.audio_url || null
+  const shouldPrepareFullBookAudio = podcastScope === 'full' && !audioInfo?.audio_url && !initialHookAudioUrl
+
+  if (!preparationJobRef.current && preparationKey) {
+    preparationJobRef.current = getBookPreparation(preparationKey)
+  }
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showScript, setShowScript] = useState(true)
+  const [hookInfo, setHookInfo] = useState(initialHookInfo || null)
+  const [hookUrl, setHookUrl] = useState(initialHookAudioUrl)
+  const [introClipUrls, setIntroClipUrls] = useState(initialHookAudioUrl ? [initialHookAudioUrl] : [])
+  const [bookClipUrls, setBookClipUrls] = useState(preparationJobRef.current?.bookClipUrls || [])
+  const [bookAudioClips, setBookAudioClips] = useState(preparationJobRef.current?.bookAudioClips || [])
+  const [introAudioDone, setIntroAudioDone] = useState(Boolean(initialHookAudioUrl || audioInfo?.audio_url))
+  const [isPreparingHookAudio, setIsPreparingHookAudio] = useState(shouldPrepareFullBookAudio)
+  const [hookAudioError, setHookAudioError] = useState(null)
+  const [livePdfInfo, setLivePdfInfo] = useState(pdfInfo || storedPdf || null)
+  const [pdfStatusText, setPdfStatusText] = useState(
+    pdfInfo || storedPdf ? 'Saved PDF + text to library.' : 'Downloading book in the background...'
+  )
+  const [pdfDownloadError, setPdfDownloadError] = useState(null)
 
   // Where the audio comes from (null in mock mode = nothing to play yet).
-  const audioUrl = audioInfo?.audio_url || hookUrl || null
-  const usesContinuousPlayer = podcastScope === 'full' || Boolean(hookUrl)
+  const queuedClipUrls = audioInfo?.audio_url
+    ? [audioInfo.audio_url]
+    : introAudioDone
+      ? [...introClipUrls, ...bookClipUrls]
+      : introClipUrls
+  const audioUrl = queuedClipUrls[0] || hookUrl || null
+  const usesContinuousPlayer = podcastScope === 'full' || Boolean(hookUrl) || Boolean(queuedClipUrls.length)
+
+  useEffect(() => {
+    const job = preparationJobRef.current
+    if (!job) return undefined
+
+    return job.subscribe((nextJob) => {
+      if (nextJob.hookInfo && !hookInfo?.hook) {
+        setHookInfo(nextJob.hookInfo)
+      }
+
+      if (nextJob.pdfInfo) {
+        setLivePdfInfo(nextJob.pdfInfo)
+        setPdfStatusText('Saved PDF + text to library.')
+        setPdfDownloadError(null)
+      } else if (nextJob.pdfError) {
+        setPdfDownloadError(nextJob.pdfError.message || 'Could not save the book.')
+        setPdfStatusText('Book download needs attention.')
+      } else if (nextJob.pdfStatusText) {
+        setPdfStatusText(nextJob.pdfStatusText)
+      }
+
+      if (nextJob.bookClipUrls?.length) {
+        setBookClipUrls((urls) => mergeUrls(urls, nextJob.bookClipUrls))
+      }
+      if (nextJob.bookAudioClips?.length) {
+        setBookAudioClips((clips) => mergeClips(clips, nextJob.bookAudioClips))
+      }
+      if (nextJob.fullBookAudioError) {
+        setHookAudioError(nextJob.fullBookAudioError.message || 'Could not prepare full-book audio.')
+      }
+      if (nextJob.fullBookAudioStarted && !nextJob.fullBookAudioDone) {
+        setIsPreparingHookAudio(true)
+      } else if (nextJob.fullBookAudioDone) {
+        setIsPreparingHookAudio(false)
+      }
+    })
+  }, [hookInfo?.hook, preparationKey])
 
   // Wire up the <audio> element's events to our React state.
   // (Declared before the early return so hooks always run in the same order.)
@@ -83,6 +185,89 @@ export default function AudioPlayer() {
     }
   }, [audioUrl])
 
+  useEffect(() => {
+    if (!book || podcastScope !== 'full' || audioInfo?.audio_url || requestedFullBookAudioRef.current) return
+
+    requestedFullBookAudioRef.current = true
+    setIsPreparingHookAudio(true)
+    setHookAudioError(null)
+
+    const prepareHookAudio = async () => {
+      const preparationJob = preparationJobRef.current
+
+      try {
+        if (!introClipUrls.length && !hookUrl) {
+          const nextHookInfo = hookInfo?.hook
+            ? hookInfo
+            : preparationJob?.hookInfo?.hook
+              ? preparationJob.hookInfo
+              : preparationJob
+                ? await preparationJob.hookPromise
+                : await generateBookHook({ title: book.title })
+
+          setHookInfo(nextHookInfo)
+
+          const lines = parseScript(nextHookInfo.hook)
+          for (const [index, line] of lines.entries()) {
+            const audio = await renderHookLineAudio({
+              title: nextHookInfo.book_name || book.title,
+              speaker: line.speaker,
+              text: line.text,
+              lineIndex: index,
+            })
+            setIntroClipUrls((urls) => mergeUrls(urls, [audio.audio_url]))
+          }
+        }
+      } catch (err) {
+        console.warn('Could not prepare hook audio, continuing to book chunks:', err)
+      } finally {
+        setIntroAudioDone(true)
+      }
+
+      try {
+        if (preparationJob) {
+          if (preparationJob.bookClipUrls?.length) {
+            setBookClipUrls((urls) => mergeUrls(urls, preparationJob.bookClipUrls))
+          }
+          if (preparationJob.bookAudioClips?.length) {
+            setBookAudioClips((clips) => mergeClips(clips, preparationJob.bookAudioClips))
+          }
+          await preparationJob.fullBookAudioPromise
+          return
+        }
+
+        const nextPdfInfo =
+          livePdfInfo ||
+          storedPdf
+
+        const textChunksKey = nextPdfInfo?.text_chunks_key
+        const textChunkCount = Number(nextPdfInfo?.text_chunk_count || 0)
+        if (!textChunksKey || !textChunkCount) {
+          throw new Error('Book text chunks are not ready yet.')
+        }
+
+        for (let chunkIndex = 1; chunkIndex <= textChunkCount; chunkIndex += 1) {
+          await streamBookChunkAudio({
+            title: book.title,
+            textChunksKey,
+            chunkIndex,
+            lineBatchSize: 4,
+            onClip: (audio) => {
+              setBookClipUrls((urls) => mergeUrls(urls, [audio.audio_url]))
+              setBookAudioClips((clips) => mergeClips(clips, [audio]))
+            },
+          })
+        }
+      } catch (err) {
+        setHookAudioError(err.message || 'Could not prepare full-book audio.')
+      } finally {
+        setIsPreparingHookAudio(false)
+      }
+    }
+
+    prepareHookAudio()
+  }, [book, podcastScope, audioInfo?.audio_url, introClipUrls.length, hookUrl, hookInfo, livePdfInfo, storedPdf])
+
   // Reached this page without a book -> send the user home.
   if (!book) {
     return (
@@ -97,11 +282,22 @@ export default function AudioPlayer() {
     )
   }
 
-  const coverUrl = book.cover_i
+  const coverUrl = initialCoverUrl || (book.cover_i
     ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-    : null
+    : null)
   const dialogues = parseScript(scriptInfo?.script)
+  const bookDialogues = bookAudioClips.flatMap((clip, clipIndex) =>
+    parseScript(clip.script).map((line, lineIndex) => ({
+      ...line,
+      key: `${clip.audio_url}-${clipIndex}-${lineIndex}`,
+    }))
+  )
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0
+  const bookMetaText = livePdfInfo?.pages
+    ? `${livePdfInfo.pages} pages`
+    : pdfDownloadError
+      ? 'Book download needs attention'
+      : pdfStatusText || 'Downloading book...'
 
   // --- Player controls ---
   const togglePlay = () => {
@@ -170,7 +366,7 @@ export default function AudioPlayer() {
             <h1 className="audio-title">{book.title}</h1>
             <p className="audio-author">{book.authors}</p>
             <p className="audio-meta">
-              {pdfInfo?.pages} pages &bull; {podcastScope === 'full' ? 'Full book' : 'First chapter'}
+              {bookMetaText} &bull; {podcastScope === 'full' ? 'Full book' : 'First chapter'}
               {scriptInfo && ` \u2022 ${scriptInfo.naval_lines + scriptInfo.chris_lines} dialogue lines`}
             </p>
           </div>
@@ -202,16 +398,43 @@ export default function AudioPlayer() {
         {hookInfo?.hook && (
           <div className="hook-container">
             <div className="hook-header">
-              <h2>Opening Hook</h2>
-              {hookInfo.model && <span>{hookInfo.model}</span>}
+              <h2>Intro</h2>
             </div>
             <p>{hookInfo.hook}</p>
           </div>
         )}
 
+        {bookDialogues.length > 0 && (
+          <div className="script-container">
+            <div className="script-header">
+              <h2>Book Conversation</h2>
+              <button className="toggle-script-btn" onClick={() => setShowScript((v) => !v)}>
+                {showScript ? 'Hide' : 'Show'}
+              </button>
+            </div>
+
+            {showScript && (
+              <div className="script-content">
+                {bookDialogues.map((line) => (
+                  <div key={line.key} className={`dialogue-line ${line.speaker.toLowerCase()}`}>
+                    <span className="speaker-name">{line.speaker}</span>
+                    <p className="speaker-text">{line.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Player (continuous queue for full-book generation, legacy player for single files). */}
         {usesContinuousPlayer ? (
-          <PodcastPlayer hookUrl={hookUrl || audioInfo?.audio_url || null} />
+          <PodcastPlayer
+            hookUrl={hookUrl || audioInfo?.audio_url || null}
+            clipUrls={queuedClipUrls}
+            isPreparing={isPreparingHookAudio}
+            error={hookAudioError}
+            autoStart
+          />
         ) : audioUrl ? (
           <div className="player-container">
             <audio ref={audioRef} src={audioUrl} preload="metadata" />

@@ -130,3 +130,12 @@ async def upload_text_to_r2(text: str, key: str) -> dict:
         key,
         "text/plain; charset=utf-8",
     )
+
+
+async def upload_jsonl_text_to_r2(text: str, key: str) -> dict:
+    """Upload a JSONL text object to R2 as UTF-8."""
+    return await upload_bytes_to_r2(
+        text.encode("utf-8"),
+        key,
+        "application/x-ndjson; charset=utf-8",
+    )

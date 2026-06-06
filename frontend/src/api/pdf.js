@@ -18,12 +18,17 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001'
  * @param {string}   args.title       - book title
  * @param {string}   [args.author]    - book author(s)
  * @param {number}   [args.expectedPages] - expected full-book page count
+ * @param {string}   [args.sourceUrl] - optional direct PDF URL to validate
  * @param {function} [args.onProgress]- called with a status string for the UI
  * @returns {Promise<{
  *   key: string,
  *   url: string,
  *   text_key: string,
  *   text_url: string,
+ *   text_chunks_key: string,
+ *   text_chunks_url: string,
+ *   text_chunk_count: number,
+ *   text_chunk_size: number,
  *   pages: number,
  *   size_mb: number,
  *   text_chars: number,
@@ -31,15 +36,28 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001'
  *   ocr_used: boolean
  * }>}
  */
-export async function findAndStorePdf({ title, author = '', expectedPages = null, onProgress }) {
-  onProgress?.('Searching the web for the full book PDF...')
+export async function findAndStorePdf({
+  title,
+  author = '',
+  expectedPages = null,
+  sourceUrl = '',
+  onProgress,
+}) {
+  onProgress?.(
+    sourceUrl ? 'Checking your PDF link...' : `Converting ${title} into a podcast...`
+  )
 
   let response
   try {
     response = await fetch(`${API_BASE}/api/find-pdf`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, author, expected_pages: expectedPages }),
+      body: JSON.stringify({
+        title,
+        author,
+        expected_pages: expectedPages,
+        source_url: sourceUrl || null,
+      }),
     })
   } catch {
     throw new Error('Could not reach the server. Is the backend running?')
@@ -48,7 +66,8 @@ export async function findAndStorePdf({ title, author = '', expectedPages = null
   if (!response.ok) {
     // FastAPI errors come back as { detail: "..." }.
     const data = await response.json().catch(() => null)
-    throw new Error(data?.detail || `Request failed (${response.status})`)
+    const detail = typeof data?.detail === 'string' ? data.detail : null
+    throw new Error(detail || `Request failed (${response.status})`)
   }
 
   onProgress?.('Saving to your library...')

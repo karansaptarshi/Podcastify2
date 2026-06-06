@@ -1,17 +1,15 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import { findAndStorePdf } from '../api/pdf'
-import { generateBookHook } from '../api/hook'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { startBookPreparation } from '../api/bookPreparation'
 import { useBookCover } from '../hooks/useBookCover'
 import './BookDetails.css'
 
 /**
  * BookDetails — the second page.
  *
- * As soon as the user lands here (right after picking a book), we find the
- * book's PDF on the web and store it in Cloudflare R2 — showing a quick
- * loading screen while that happens. Once it's saved we show the book and two
- * buttons that turn it into a podcast:
+ * After the user picks a book, this page lets them choose the podcast scope.
+ * Full-book conversion then starts the hook and PDF jobs together. The hook
+ * gets the user to the player first; the PDF keeps saving in the background.
  *   - "Summary"   -> just the first chapter   (scope: 'chapter')
  *   - "Full Book" -> the whole book           (scope: 'full')
  *
@@ -25,42 +23,142 @@ export default function BookDetails() {
 
   const [statusText, setStatusText] = useState('')
   const [error, setError] = useState(null)
-  const [isGeneratingHook, setIsGeneratingHook] = useState(false)
+  const [manualPdfUrl, setManualPdfUrl] = useState('')
+  const preparationRef = useRef({ bookKey: null, job: null })
+  const unsubscribePreparationRef = useRef(null)
+  const coverUrlRef = useRef(null)
 
-  // The PDF find+store step that runs on arrival.
-  //   phase: 'finding' | 'ready' | 'error'
-  const [pdf, setPdf] = useState({ phase: 'finding', info: null, error: null })
+  // The PDF find+store step that runs after the user starts conversion.
+  //   phase: 'idle' | 'finding' | 'ready' | 'error'
+  const [pdf, setPdf] = useState({ phase: 'idle', info: null, error: null })
 
   // Cover image (handles fallbacks + load/error state for us).
   const cover = useBookCover(book)
 
-  // On arrival: locate the book's PDF and store it in R2.
   useEffect(() => {
+    coverUrlRef.current = cover.url
+  }, [cover.url])
+
+  const openFullBookPlayer = useCallback((selectedPdf = null, options = {}) => {
     if (!book) return
 
-    let cancelled = false
-    setPdf({ phase: 'finding', info: null, error: null })
-    setStatusText('fetching book...')
+    const nextPdfInfo = selectedPdf
+      ? {
+          pages: selectedPdf?.pages,
+          key: selectedPdf?.key,
+          text_key: selectedPdf?.text_key,
+          text_chunks_key: selectedPdf?.text_chunks_key,
+          text_chunks_url: selectedPdf?.text_chunks_url,
+          text_chunk_count: selectedPdf?.text_chunk_count,
+          text_chunk_size: selectedPdf?.text_chunk_size,
+        }
+      : options.pdfInfo || null
 
-    findAndStorePdf({
-      title: book.title,
-      author: book.authors,
-      expectedPages: book.expectedPages,
-      onProgress: (text) => !cancelled && setStatusText(text),
+    navigate('/player', {
+      replace: Boolean(options.replace),
+      state: {
+        book,
+        storedPdf: selectedPdf,
+        pdfInfo: nextPdfInfo,
+        podcastScope: 'full',
+        hookInfo: options.hookInfo || null,
+        hookUrl: null,
+        preparationKey: options.preparationKey || preparationRef.current.job?.key || null,
+        coverUrl: options.coverUrl || coverUrlRef.current || null,
+      },
     })
-      .then((info) => {
-        if (!cancelled) setPdf({ phase: 'ready', info, error: null })
+  }, [book, navigate])
+
+  const stopPreparationSubscription = useCallback(() => {
+    unsubscribePreparationRef.current?.()
+    unsubscribePreparationRef.current = null
+  }, [])
+
+  useEffect(() => stopPreparationSubscription, [stopPreparationSubscription])
+
+  const startFullBookConversion = useCallback((sourceUrl = '') => {
+    if (!book) return
+
+    stopPreparationSubscription()
+
+    const bookKey = `${book.key || book.title}-${book.authors || ''}-${sourceUrl || 'auto'}`
+    const job = startBookPreparation({ book, sourceUrl })
+
+    setError(null)
+    setPdf({ phase: 'finding', info: null, error: null })
+    setStatusText(sourceUrl ? 'Checking your PDF link...' : 'Writing the opening hook...')
+
+    preparationRef.current = { bookKey, job }
+    let finished = false
+
+    const isCurrentJob = () => preparationRef.current.bookKey === bookKey
+
+    const goToPlayer = (options = {}) => {
+      if (finished || !isCurrentJob()) return
+
+      finished = true
+      stopPreparationSubscription()
+      setStatusText('Opening player...')
+      setManualPdfUrl('')
+      openFullBookPlayer(options.pdfInfo || job.pdfInfo || null, {
+        replace: true,
+        hookInfo: options.hookInfo || job.hookInfo || null,
+        preparationKey: job.key,
+      })
+    }
+
+    const unsubscribe = job.subscribe((nextJob) => {
+      if (finished || !isCurrentJob()) return
+
+      if (nextJob.pdfInfo) {
+        setPdf({ phase: 'ready', info: nextJob.pdfInfo, error: null })
+      } else if (nextJob.pdfError) {
+        setPdf({
+          phase: 'error',
+          info: null,
+          error: nextJob.pdfError.message || 'Something went wrong',
+        })
+      }
+
+      setStatusText(nextJob.hookInfo ? 'Opening player...' : nextJob.pdfStatusText)
+    })
+    unsubscribePreparationRef.current = unsubscribe
+
+    job.hookPromise
+      .then((hookInfo) => {
+        goToPlayer({ hookInfo })
       })
       .catch((err) => {
-        if (!cancelled) {
-          setPdf({ phase: 'error', info: null, error: err.message || 'Something went wrong' })
-        }
-      })
+        console.warn('Hook generation failed before PDF save:', err)
 
-    return () => {
-      cancelled = true
+        job.pdfPromise
+          .then((pdfInfo) => goToPlayer({ pdfInfo }))
+          .catch((pdfErr) => {
+            if (finished || !isCurrentJob()) return
+
+            finished = true
+            stopPreparationSubscription()
+            setPdf({
+              phase: 'error',
+              info: null,
+              error: pdfErr.message || 'Could not save the book.',
+            })
+            setStatusText(pdfErr.message || 'Could not save the book.')
+          })
+      })
+  }, [book, openFullBookPlayer, stopPreparationSubscription])
+
+  const saveManualPdf = async (event) => {
+    event.preventDefault()
+
+    const sourceUrl = manualPdfUrl.trim()
+    if (!sourceUrl) {
+      setError('Paste a direct PDF URL first.')
+      return
     }
-  }, [book])
+
+    startFullBookConversion(sourceUrl)
+  }
 
   // No book was passed via navigation state -> offer a way home.
   if (!book) {
@@ -76,34 +174,6 @@ export default function BookDetails() {
     )
   }
 
-  const openFullBookPlayer = async () => {
-    setError(null)
-    setIsGeneratingHook(true)
-
-    try {
-      const hookInfo = await generateBookHook({ title: book.title })
-
-      navigate('/player', {
-        state: {
-          book,
-          storedPdf: pdf.info,
-          pdfInfo: {
-            pages: pdf.info?.pages,
-            key: pdf.info?.key,
-            text_key: pdf.info?.text_key,
-          },
-          podcastScope: 'full',
-          hookInfo,
-          hookUrl: null,
-        },
-      })
-    } catch (err) {
-      setError(err.message || 'Could not generate the opening hook.')
-    } finally {
-      setIsGeneratingHook(false)
-    }
-  }
-
   const showSummaryComingSoon = () => {
     setError('Summary generation is coming later.')
   }
@@ -116,23 +186,41 @@ export default function BookDetails() {
         <div className="background-blur"></div>
 
         <div className="searching-overlay">
+          <div className="studio-grid"></div>
+          <div className="studio-beam studio-beam-left"></div>
+          <div className="studio-beam studio-beam-right"></div>
+
           <div className="searching-content">
-            <div className="searching-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                <path d="M8 7h6" />
-                <path d="M8 11h8" />
-              </svg>
-              <div className="searching-pulse"></div>
+            <div className="studio-label">Podcastify Studio</div>
+
+            <div className="conversion-stage" aria-hidden="true">
+              <div className="sound-ring sound-ring-one"></div>
+              <div className="sound-ring sound-ring-two"></div>
+              <div className="sound-ring sound-ring-three"></div>
+
+              <div className="cover-broadcast">
+                {cover.url && !cover.failed ? (
+                  <img src={cover.url} alt="" />
+                ) : (
+                  <div className="broadcast-placeholder">{book.title.charAt(0)}</div>
+                )}
+              </div>
+
+              <div className="mic-node">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" x2="12" y1="19" y2="22" />
+                </svg>
+              </div>
             </div>
 
             <h2 className="searching-title">{book.title}</h2>
-            <p className="searching-step">{statusText}</p>
+            <p className="searching-step">{statusText || `Converting ${book.title} into a podcast...`}</p>
 
-            <div className="searching-dots">
-              <span></span>
-              <span></span>
-              <span></span>
+            <div className="waveform-loader" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
           </div>
         </div>
@@ -199,11 +287,30 @@ export default function BookDetails() {
             </p>
           )}
           {pdf.phase === 'error' && (
-            <p className="pdf-status pdf-status-warn">
-              Couldn't find the book.
-            </p>
+            <>
+              <p className="pdf-status pdf-status-warn">
+                Couldn't find the book automatically.
+              </p>
+              <p className="pdf-error-detail">{pdf.error}</p>
+            </>
           )}
         </div>
+
+        {pdf.phase === 'error' && (
+          <form className="manual-pdf-card" onSubmit={saveManualPdf}>
+            <label htmlFor="manual-pdf-url">Have a direct PDF link?</label>
+            <div className="manual-pdf-row">
+              <input
+                id="manual-pdf-url"
+                type="url"
+                value={manualPdfUrl}
+                onChange={(event) => setManualPdfUrl(event.target.value)}
+                placeholder="https://example.com/book.pdf"
+              />
+              <button type="submit">Use Link</button>
+            </div>
+          </form>
+        )}
 
         {/* Convert buttons */}
         <div className="convert-buttons">
@@ -218,21 +325,17 @@ export default function BookDetails() {
           </button>
 
           <button
-            className={`convert-button full-button ${isGeneratingHook ? 'converting' : ''}`}
-            onClick={openFullBookPlayer}
-            disabled={isGeneratingHook}
+            className="convert-button full-button"
+            onClick={() => startFullBookConversion()}
+            disabled={pdf.phase === 'finding'}
           >
-            {isGeneratingHook ? (
-              <span className="button-spinner" aria-hidden="true"></span>
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" x2="12" y1="19" y2="22" />
-              </svg>
-            )}
-            {isGeneratingHook ? 'Writing hook...' : 'Full Book'}
-            {!isGeneratingHook && <span className="button-badge duration">30 minutes</span>}
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" x2="12" y1="19" y2="22" />
+            </svg>
+            Full Book
+            <span className="button-badge duration">30 minutes</span>
           </button>
         </div>
 

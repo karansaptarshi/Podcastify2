@@ -1,9 +1,16 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import useContinuousPlayer from '../hooks/useContinuousPlayer'
 
-const PodcastPlayer = forwardRef(function PodcastPlayer({ hookUrl }, ref) {
+const PodcastPlayer = forwardRef(function PodcastPlayer({
+  hookUrl,
+  clipUrls = [],
+  isPreparing = false,
+  error = null,
+  autoStart = false,
+}, ref) {
   const player = useContinuousPlayer()
-  const addedHookUrlRef = useRef(null)
+  const addedClipUrlsRef = useRef(new Set())
+  const autoStartedHookUrlRef = useRef(null)
 
   useImperativeHandle(ref, () => ({
     addClip: player.addClip,
@@ -12,13 +19,27 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({ hookUrl }, ref) {
   }), [player.addClip, player.pause, player.start])
 
   useEffect(() => {
-    if (!hookUrl || addedHookUrlRef.current === hookUrl) return
+    const urls = clipUrls.length ? clipUrls : hookUrl ? [hookUrl] : []
 
-    player.addClip(hookUrl)
-    addedHookUrlRef.current = hookUrl
-  }, [hookUrl, player])
+    urls.forEach((url) => {
+      if (!url || addedClipUrlsRef.current.has(url)) return
+
+      player.addClip(url)
+      addedClipUrlsRef.current.add(url)
+    })
+  }, [clipUrls, hookUrl, player])
+
+  useEffect(() => {
+    const firstUrl = clipUrls[0] || hookUrl
+    if (!autoStart || !firstUrl || autoStartedHookUrlRef.current === firstUrl) return
+
+    autoStartedHookUrlRef.current = firstUrl
+    player.start()
+  }, [autoStart, clipUrls, hookUrl, player])
 
   const togglePlayback = () => {
+    if (!hookUrl && !clipUrls.length && isPreparing) return
+
     if (player.isPlaying) {
       player.pause()
       return
@@ -29,8 +50,26 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({ hookUrl }, ref) {
 
   return (
     <div style={styles.shell}>
-      <button type="button" onClick={togglePlayback} style={styles.button}>
-        {player.isPlaying ? 'Pause' : 'Play'}
+      <button
+        type="button"
+        onClick={togglePlayback}
+        disabled={!hookUrl && !clipUrls.length && isPreparing}
+        style={{
+          ...styles.button,
+          ...(!hookUrl && !clipUrls.length && isPreparing ? styles.buttonDisabled : null),
+        }}
+      >
+        {!hookUrl && !clipUrls.length && isPreparing ? 'Getting ready...' : player.isPlaying ? 'Pause' : 'Play'}
+      </button>
+
+      <button
+        type="button"
+        onClick={player.cyclePlaybackRate}
+        style={styles.speedButton}
+        title="Playback speed"
+        aria-label="Playback speed"
+      >
+        {player.playbackRate}x
       </button>
 
       <div style={styles.progressTrack} aria-label="Current clip progress">
@@ -38,7 +77,7 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({ hookUrl }, ref) {
       </div>
 
       <div style={styles.status}>
-        {player.isWaiting ? 'loading next...' : player.isPlaying ? 'playing hook' : 'ready'}
+        {error || player.error || (!hookUrl && !clipUrls.length && isPreparing ? 'preparing audio...' : player.isWaiting ? 'loading next...' : player.isPlaying ? 'playing intro' : 'ready')}
       </div>
     </div>
   )
@@ -50,7 +89,7 @@ const styles = {
     alignItems: 'center',
     gap: '14px',
     width: '100%',
-    maxWidth: '560px',
+    maxWidth: '640px',
     padding: '14px 16px',
     borderRadius: '16px',
     background: 'rgba(12, 12, 18, 0.78)',
@@ -65,6 +104,20 @@ const styles = {
     background: '#fff',
     color: '#111',
     fontWeight: 700,
+    cursor: 'pointer',
+  },
+  buttonDisabled: {
+    opacity: 0.72,
+    cursor: 'not-allowed',
+  },
+  speedButton: {
+    minWidth: '58px',
+    padding: '9px 10px',
+    borderRadius: '999px',
+    border: '1px solid rgba(255, 255, 255, 0.16)',
+    background: 'rgba(255, 255, 255, 0.08)',
+    color: '#fff',
+    fontWeight: 800,
     cursor: 'pointer',
   },
   progressTrack: {
