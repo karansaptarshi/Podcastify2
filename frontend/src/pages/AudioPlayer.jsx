@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 import PodcastPlayer from '../components/PodcastPlayer'
 import { getBookPreparation } from '../api/bookPreparation'
 import { generateBookHook, renderHookLineAudio, streamBookChunkAudio } from '../api/hook'
@@ -94,6 +95,7 @@ export default function AudioPlayer() {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [volume, setVolume] = useState(1)
   const [showScript, setShowScript] = useState(true)
   const [hookInfo, setHookInfo] = useState(initialHookInfo || null)
   const [hookUrl, setHookUrl] = useState(initialHookAudioUrl)
@@ -184,6 +186,13 @@ export default function AudioPlayer() {
       audio.removeEventListener('ended', onEnded)
     }
   }, [audioUrl])
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    audio.volume = volume
+  }, [audioUrl, volume])
 
   useEffect(() => {
     if (!book || podcastScope !== 'full' || audioInfo?.audio_url) return
@@ -373,6 +382,10 @@ export default function AudioPlayer() {
     if (audioRef.current) audioRef.current.playbackRate = next
   }
 
+  const changeVolume = (event) => {
+    setVolume(Math.max(0, Math.min(1, Number(event.target.value) || 0)))
+  }
+
   const seekToClick = (e) => {
     const bar = progressRef.current
     const audio = audioRef.current
@@ -527,6 +540,24 @@ export default function AudioPlayer() {
                   </svg>
                 )}
               </button>
+
+              <label className="volume-control" title="Volume">
+                {volume === 0 ? (
+                  <VolumeX size={20} strokeWidth={2.2} aria-hidden="true" />
+                ) : (
+                  <Volume2 size={20} strokeWidth={2.2} aria-hidden="true" />
+                )}
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={volume}
+                  onChange={changeVolume}
+                  aria-label="Volume"
+                  className="volume-slider"
+                />
+              </label>
 
               <button className="control-btn secondary" onClick={() => skip(15)} title="Forward 15s">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

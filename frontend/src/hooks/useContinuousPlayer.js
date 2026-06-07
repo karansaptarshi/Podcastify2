@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const PLAYBACK_RATES = [0.8, 1, 1.25, 1.5, 2]
 const DEFAULT_PLAYBACK_RATE = 1.25
+const DEFAULT_VOLUME = 1
 
 export function useContinuousPlayer() {
   const audioRef = useRef(null)
@@ -9,12 +10,14 @@ export function useContinuousPlayer() {
   const currentIndexRef = useRef(-1)
   const hasStartedRef = useRef(false)
   const playbackRateRef = useRef(DEFAULT_PLAYBACK_RATE)
+  const volumeRef = useRef(DEFAULT_VOLUME)
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState(null)
   const [playbackRate, setPlaybackRate] = useState(DEFAULT_PLAYBACK_RATE)
+  const [volume, setVolumeState] = useState(DEFAULT_VOLUME)
   const [finishedClipCount, setFinishedClipCount] = useState(0)
 
   const playIndex = useCallback((index) => {
@@ -41,6 +44,7 @@ export function useContinuousPlayer() {
     audio.src = nextUrl
     audio.currentTime = 0
     audio.playbackRate = playbackRateRef.current
+    audio.volume = volumeRef.current
     audio.play().catch(() => {
       setIsPlaying(false)
       setError('audio playback was blocked')
@@ -69,6 +73,7 @@ export function useContinuousPlayer() {
     setIsWaiting(false)
     setError(null)
     audio.playbackRate = playbackRateRef.current
+    audio.volume = volumeRef.current
     audio.play().catch(() => {
       setIsPlaying(false)
       setError('audio playback was blocked')
@@ -89,6 +94,16 @@ export function useContinuousPlayer() {
       }
       return next
     })
+  }, [])
+
+  const setVolume = useCallback((nextVolume) => {
+    const next = Math.max(0, Math.min(1, Number(nextVolume) || 0))
+    volumeRef.current = next
+    setVolumeState(next)
+
+    if (audioRef.current) {
+      audioRef.current.volume = next
+    }
   }, [])
 
   const addClip = useCallback((url) => {
@@ -113,12 +128,20 @@ export function useContinuousPlayer() {
   }, [playbackRate])
 
   useEffect(() => {
+    volumeRef.current = volume
+    if (audioRef.current) {
+      audioRef.current.volume = volume
+    }
+  }, [volume])
+
+  useEffect(() => {
     const audio = audioRef.current
     if (!audio) return undefined
 
     audio.preload = 'auto'
     audio.playsInline = true
     audio.playbackRate = playbackRateRef.current
+    audio.volume = volumeRef.current
 
     const handlePlay = () => {
       setIsPlaying(true)
@@ -176,10 +199,12 @@ export function useContinuousPlayer() {
     pause,
     addClip,
     cyclePlaybackRate,
+    setVolume,
     isPlaying,
     isWaiting,
     progress,
     playbackRate,
+    volume,
     finishedClipCount,
     error,
   }

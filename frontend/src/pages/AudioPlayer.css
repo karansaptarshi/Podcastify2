@@ -454,9 +454,10 @@
 /* Player controls */
 .player-controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
   margin-top: 20px;
 }
 
@@ -505,6 +506,20 @@
 
 .play-btn svg {
   margin-left: 2px;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 132px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.volume-slider {
+  width: 96px;
+  accent-color: #e8c170;
+  cursor: pointer;
 }
 
 /* Extra controls */
@@ -610,4 +625,3 @@
     height: 56px;
   }
 }
-

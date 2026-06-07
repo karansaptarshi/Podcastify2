@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 import useContinuousPlayer from '../hooks/useContinuousPlayer'
 
 const PodcastPlayer = forwardRef(function PodcastPlayer({
@@ -14,6 +15,7 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
   const addedClipUrlsRef = useRef(new Set())
   const autoStartedHookUrlRef = useRef(null)
   const completedIntroCountRef = useRef(0)
+  const VolumeIcon = player.volume === 0 ? VolumeX : Volume2
 
   useImperativeHandle(ref, () => ({
     addClip: player.addClip,
@@ -66,6 +68,20 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
       >
         {player.isPlaying ? 'Pause' : 'Play'}
       </button>
+
+      <label style={styles.volumeControl} title="Volume">
+        <VolumeIcon size={18} strokeWidth={2.2} aria-hidden="true" />
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={player.volume}
+          onChange={(event) => player.setVolume(event.target.value)}
+          aria-label="Volume"
+          style={styles.volumeSlider}
+        />
+      </label>
 
       <button
         type="button"
@@ -127,6 +143,19 @@ const styles = {
     background: 'rgba(255, 255, 255, 0.08)',
     color: '#fff',
     fontWeight: 800,
+    cursor: 'pointer',
+  },
+  volumeControl: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    width: '124px',
+    minWidth: '112px',
+    color: 'rgba(255, 255, 255, 0.78)',
+  },
+  volumeSlider: {
+    width: '92px',
+    accentColor: '#fff',
     cursor: 'pointer',
   },
   progressTrack: {
