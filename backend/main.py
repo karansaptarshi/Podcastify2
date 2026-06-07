@@ -51,6 +51,7 @@ app = FastAPI(title="Podcastly API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://podcastify2.pages.dev",
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:3000",
