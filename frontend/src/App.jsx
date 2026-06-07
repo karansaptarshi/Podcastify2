@@ -26,7 +26,7 @@ function App() {
   }
 
   // Each letter is its own <span> so CSS can animate them individually.
-  const titleLetters = 'Podcastify'.split('')
+  const titleLetters = 'Podcastly'.split('')
 
   return (
     <div className="homepage">
@@ -39,7 +39,7 @@ function App() {
       {/* Content */}
       <div className={`content ${showContent ? 'visible' : ''}`}>
         <h1 className="title glitch-wrapper">
-          <span className="title-text" data-text="Podcastify">
+          <span className="title-text" data-text="Podcastly">
             {titleLetters.map((letter, index) => (
               <span 
                 key={index} 
@@ -51,8 +51,8 @@ function App() {
             ))}
           </span>
           {/* Glitch layers */}
-          <span className="glitch-layer glitch-1" aria-hidden="true">Podcastify</span>
-          <span className="glitch-layer glitch-2" aria-hidden="true">Podcastify</span>
+          <span className="glitch-layer glitch-1" aria-hidden="true">Podcastly</span>
+          <span className="glitch-layer glitch-2" aria-hidden="true">Podcastly</span>
         </h1>
         
         <p className="tagline">Listen to any book as a Podcast</p>

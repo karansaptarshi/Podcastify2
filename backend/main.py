@@ -1,5 +1,5 @@
 """
-Podcastify backend (thin HTTP layer).
+Podcastly backend (thin HTTP layer).
 
 This file only wires HTTP routes to the underlying modules:
     pdf_finder  -> finds a readable PDF and extracts its text
@@ -46,7 +46,7 @@ from text_chunker import (
     text_chunks_storage_key,
 )
 
-app = FastAPI(title="Podcastify API")
+app = FastAPI(title="Podcastly API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -187,9 +187,9 @@ async def generate_hook(req: GenerateHookRequest):
 async def render_hook_audio(req: RenderHookAudioRequest):
     """Render generated hook dialogue to MP3, upload it to R2, and return its URL."""
     try:
-        from tts.make_audio import render_hook, upload_to_r2
+        from tts.make_audio import render_hook_async, upload_to_r2
 
-        audio = await asyncio.to_thread(render_hook, req.hook)
+        audio = await render_hook_async(req.hook)
         audio_key = audio_storage_key(req.title)
         audio_url = await asyncio.to_thread(upload_to_r2, audio, audio_key)
     except Exception as exc:
@@ -205,7 +205,7 @@ async def render_hook_audio(req: RenderHookAudioRequest):
 async def render_hook_line_audio(req: RenderHookLineAudioRequest):
     """Render one generated hook dialogue line to MP3 so playback can start sooner."""
     try:
-        from tts.make_audio import VOICES, make_audio, upload_to_r2
+        from tts.make_audio import VOICES, make_audio_async, upload_to_r2
 
         speaker = req.speaker.upper().strip()
         text = req.text.strip()
@@ -214,7 +214,7 @@ async def render_hook_line_audio(req: RenderHookLineAudioRequest):
         if not text:
             raise ValueError("Hook line text is required")
 
-        audio = await asyncio.to_thread(make_audio, text, VOICES[speaker])
+        audio = await make_audio_async(text, VOICES[speaker])
         audio_key = audio_storage_key(req.title, f"hook-line-{req.line_index + 1:03d}")
         audio_url = await asyncio.to_thread(upload_to_r2, audio, audio_key)
     except Exception as exc:

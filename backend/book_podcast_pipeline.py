@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 from r2_storage import get_bucket, get_r2_client
 from text_chunker import TEXT_CHUNK_SIZE
-from tts.make_audio import render_hook, upload_to_r2
+from tts.make_audio import render_hook_async, upload_to_r2
 
 load_dotenv()
 
@@ -65,7 +65,7 @@ def _openrouter_headers() -> dict[str, str]:
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "X-Title": os.getenv("OPENROUTER_APP_NAME", "Podcastify"),
+        "X-Title": os.getenv("OPENROUTER_APP_NAME", "Podcastly"),
     }
 
     app_url = os.getenv("OPENROUTER_APP_URL", "").strip()
@@ -451,7 +451,7 @@ async def generate_book_chunk_queue_item(
         chunk,
         len(all_chunks),
     )
-    audio = await asyncio.to_thread(render_hook, script)
+    audio = await render_hook_async(script)
     audio_key = _audio_storage_key(book_title, chunk.index)
     audio_url = await asyncio.to_thread(upload_to_r2, audio, audio_key)
 
@@ -494,7 +494,7 @@ async def stream_book_chunk_queue_items(
             continue
 
         script = "\n".join(batch)
-        audio = await asyncio.to_thread(render_hook, script)
+        audio = await render_hook_async(script)
         audio_key = _audio_storage_key(book_title, chunk.index, part_index)
         audio_url = await asyncio.to_thread(upload_to_r2, audio, audio_key)
         yield PodcastQueueItem(
@@ -511,7 +511,7 @@ async def stream_book_chunk_queue_items(
 
     if batch:
         script = "\n".join(batch)
-        audio = await asyncio.to_thread(render_hook, script)
+        audio = await render_hook_async(script)
         audio_key = _audio_storage_key(book_title, chunk.index, part_index)
         audio_url = await asyncio.to_thread(upload_to_r2, audio, audio_key)
         yield PodcastQueueItem(

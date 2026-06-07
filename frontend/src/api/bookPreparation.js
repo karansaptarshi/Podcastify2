@@ -2,7 +2,7 @@ import { generateBookHook, streamBookChunkAudio } from './hook'
 import { findAndStorePdf } from './pdf'
 
 const jobs = new Map()
-const BOOK_AUDIO_LOOKAHEAD_CHUNKS = 2
+const BOOK_AUDIO_LOOKAHEAD_CHUNKS = 0
 
 export function bookPreparationKey(book, sourceUrl = '') {
   if (!book) return ''
@@ -50,7 +50,13 @@ function startFullBookAudio(job, pdfInfo) {
     return null
   }
 
+  const controller = new AbortController()
+
   job.fullBookAudioStarted = true
+  job.fullBookAudioCancelled = false
+  job.fullBookAudioController = controller
+  job.fullBookAudioDone = false
+  job.fullBookAudioError = null
   job.fullBookAudioStatusText = 'Preparing book audio...'
   notify(job)
 
@@ -62,6 +68,8 @@ function startFullBookAudio(job, pdfInfo) {
     let nextChunkToStart = 1
 
     const startChunk = (chunkIndex) => {
+      if (controller.signal.aborted) return
+
       const chunkState = {
         clips: [],
         done: false,
@@ -77,7 +85,9 @@ function startFullBookAudio(job, pdfInfo) {
         textChunksKey,
         chunkIndex,
         lineBatchSize: 4,
+        signal: controller.signal,
         onClip: (clip) => {
+          if (controller.signal.aborted) return
           chunkState.clips.push(clip)
           releaseReadyBookClips(job, chunkStates, nextReleaseRef)
         },
@@ -94,7 +104,11 @@ function startFullBookAudio(job, pdfInfo) {
     }
 
     const startAvailableChunks = () => {
-      while (nextChunkToStart <= textChunkCount && activeChunks.size < maxParallelChunks) {
+      while (
+        !controller.signal.aborted &&
+        nextChunkToStart <= textChunkCount &&
+        activeChunks.size < maxParallelChunks
+      ) {
         startChunk(nextChunkToStart)
         nextChunkToStart += 1
       }
@@ -105,22 +119,55 @@ function startFullBookAudio(job, pdfInfo) {
 
       while (activeChunks.size) {
         await Promise.race(activeChunks)
+        if (controller.signal.aborted) break
         startAvailableChunks()
+      }
+
+      if (controller.signal.aborted) {
+        job.fullBookAudioStarted = false
+        job.fullBookAudioCancelled = true
+        job.fullBookAudioStatusText = 'Book audio stopped.'
+        notify(job)
+        return
       }
 
       job.fullBookAudioDone = true
       job.fullBookAudioStatusText = 'Book audio ready.'
       notify(job)
     } catch (err) {
+      if (controller.signal.aborted || err?.name === 'AbortError') {
+        job.fullBookAudioStarted = false
+        job.fullBookAudioCancelled = true
+        job.fullBookAudioStatusText = 'Book audio stopped.'
+        notify(job)
+        return
+      }
+
       job.fullBookAudioError = err
       job.fullBookAudioStatusText = err.message || 'Could not prepare book audio.'
       notify(job)
       throw err
+    } finally {
+      if (job.fullBookAudioController === controller) {
+        job.fullBookAudioController = null
+      }
     }
   })()
 
   void job.fullBookAudioPromise.catch(() => {})
   return job.fullBookAudioPromise
+}
+
+function cancelFullBookAudio(job) {
+  if (!job.fullBookAudioController || job.fullBookAudioController.signal.aborted) {
+    return
+  }
+
+  job.fullBookAudioController.abort()
+  job.fullBookAudioStarted = false
+  job.fullBookAudioCancelled = true
+  job.fullBookAudioStatusText = 'Book audio stopped.'
+  notify(job)
 }
 
 function createBookPreparationJob({ book, sourceUrl = '' }) {
@@ -140,6 +187,8 @@ function createBookPreparationJob({ book, sourceUrl = '' }) {
     bookAudioClips: [],
     fullBookAudioStarted: false,
     fullBookAudioDone: false,
+    fullBookAudioCancelled: false,
+    fullBookAudioController: null,
     fullBookAudioError: null,
     fullBookAudioStatusText: '',
     listeners: new Set(),
@@ -149,6 +198,9 @@ function createBookPreparationJob({ book, sourceUrl = '' }) {
       return () => this.listeners.delete(listener)
     },
   }
+
+  job.startFullBookAudio = (pdfInfo) => startFullBookAudio(job, pdfInfo)
+  job.cancelFullBookAudio = () => cancelFullBookAudio(job)
 
   job.hookPromise = generateBookHook({ title: book.title })
     .then((hookInfo) => {
@@ -176,7 +228,6 @@ function createBookPreparationJob({ book, sourceUrl = '' }) {
       job.pdfInfo = pdfInfo
       job.pdfStatusText = 'Saved PDF + text to library.'
       notify(job)
-      startFullBookAudio(job, pdfInfo)
       return pdfInfo
     })
     .catch((err) => {

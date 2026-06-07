@@ -15,16 +15,17 @@ export function useContinuousPlayer() {
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState(null)
   const [playbackRate, setPlaybackRate] = useState(DEFAULT_PLAYBACK_RATE)
-
-  if (!audioRef.current) {
-    audioRef.current = new Audio()
-    audioRef.current.preload = 'auto'
-    audioRef.current.playbackRate = DEFAULT_PLAYBACK_RATE
-  }
+  const [finishedClipCount, setFinishedClipCount] = useState(0)
 
   const playIndex = useCallback((index) => {
     const audio = audioRef.current
     const nextUrl = queueRef.current[index]
+
+    if (!audio) {
+      setIsWaiting(true)
+      setIsPlaying(false)
+      return
+    }
 
     if (!nextUrl) {
       setIsWaiting(true)
@@ -50,6 +51,11 @@ export function useContinuousPlayer() {
     const audio = audioRef.current
     hasStartedRef.current = true
 
+    if (!audio) {
+      setIsWaiting(true)
+      return
+    }
+
     if (currentIndexRef.current === -1) {
       playIndex(0)
       return
@@ -61,6 +67,7 @@ export function useContinuousPlayer() {
     }
 
     setIsWaiting(false)
+    setError(null)
     audio.playbackRate = playbackRateRef.current
     audio.play().catch(() => {
       setIsPlaying(false)
@@ -69,7 +76,7 @@ export function useContinuousPlayer() {
   }, [playIndex])
 
   const pause = useCallback(() => {
-    audioRef.current.pause()
+    audioRef.current?.pause()
   }, [])
 
   const cyclePlaybackRate = useCallback(() => {
@@ -77,7 +84,9 @@ export function useContinuousPlayer() {
       const currentIndex = PLAYBACK_RATES.indexOf(current)
       const next = PLAYBACK_RATES[((currentIndex === -1 ? 0 : currentIndex) + 1) % PLAYBACK_RATES.length]
       playbackRateRef.current = next
-      audioRef.current.playbackRate = next
+      if (audioRef.current) {
+        audioRef.current.playbackRate = next
+      }
       return next
     })
   }, [])
@@ -98,11 +107,18 @@ export function useContinuousPlayer() {
 
   useEffect(() => {
     playbackRateRef.current = playbackRate
-    audioRef.current.playbackRate = playbackRate
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate
+    }
   }, [playbackRate])
 
   useEffect(() => {
     const audio = audioRef.current
+    if (!audio) return undefined
+
+    audio.preload = 'auto'
+    audio.playsInline = true
+    audio.playbackRate = playbackRateRef.current
 
     const handlePlay = () => {
       setIsPlaying(true)
@@ -124,8 +140,10 @@ export function useContinuousPlayer() {
     }
 
     const handleEnded = () => {
+      const endedIndex = currentIndexRef.current
       setProgress(1)
-      playIndex(currentIndexRef.current + 1)
+      setFinishedClipCount((count) => Math.max(count, endedIndex + 1))
+      playIndex(endedIndex + 1)
     }
 
     const handleError = () => {
@@ -153,6 +171,7 @@ export function useContinuousPlayer() {
   }, [playIndex])
 
   return {
+    audioRef,
     start,
     pause,
     addClip,
@@ -161,6 +180,7 @@ export function useContinuousPlayer() {
     isWaiting,
     progress,
     playbackRate,
+    finishedClipCount,
     error,
   }
 }

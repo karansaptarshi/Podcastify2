@@ -10,7 +10,7 @@ Required environment variables:
 Optional environment variables (sensible defaults are provided):
     R2_ACCOUNT_ID          - Cloudflare account id (defaults to the project's account)
     R2_ENDPOINT_URL        - full S3 endpoint, e.g. https://<account>.r2.cloudflarestorage.com
-    R2_BUCKET              - bucket name (default: podcastify)
+    R2_BUCKET              - bucket name (default: podcastly)
     R2_PUBLIC_BASE_URL     - public URL base if the bucket is served via a public/custom domain
 """
 import asyncio
@@ -30,7 +30,7 @@ _client = None
 
 def _account_id() -> str:
     # Account id is taken from the R2 endpoint the project uses:
-    # https://b4a13a12455c62cdec8eae9367c6704a.r2.cloudflarestorage.com/podcastify
+    # https://b4a13a12455c62cdec8eae9367c6704a.r2.cloudflarestorage.com/podcastly
     return os.getenv("R2_ACCOUNT_ID", "b4a13a12455c62cdec8eae9367c6704a")
 
 
@@ -41,7 +41,7 @@ def get_endpoint_url() -> str:
 
 
 def get_bucket() -> str:
-    return os.getenv("R2_BUCKET", "podcastify")
+    return os.getenv("R2_BUCKET", "podcastly")
 
 
 # Backwards-compatible module-level constants (read lazily via functions above

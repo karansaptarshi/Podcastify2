@@ -15,7 +15,10 @@ export async function generateBookHook({ title }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title }),
     })
-  } catch {
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw err
+    }
     throw new Error('Could not reach the server. Is the backend running?')
   }
 
@@ -35,7 +38,10 @@ export async function renderHookAudio({ title, hook }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, hook }),
     })
-  } catch {
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw err
+    }
     throw new Error('Could not reach the server. Is the backend running?')
   }
 
@@ -47,12 +53,13 @@ export async function renderHookAudio({ title, hook }) {
   return response.json()
 }
 
-export async function renderHookLineAudio({ title, speaker, text, lineIndex = 0 }) {
+export async function renderHookLineAudio({ title, speaker, text, lineIndex = 0, signal }) {
   let response
   try {
     response = await fetch(`${API_BASE}/api/render-hook-line-audio`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal,
       body: JSON.stringify({
         title,
         speaker,
@@ -60,7 +67,10 @@ export async function renderHookLineAudio({ title, speaker, text, lineIndex = 0 
         line_index: lineIndex,
       }),
     })
-  } catch {
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw err
+    }
     throw new Error('Could not reach the server. Is the backend running?')
   }
 
@@ -102,12 +112,14 @@ export async function streamBookChunkAudio({
   chunkIndex,
   lineBatchSize = 4,
   onClip,
+  signal,
 }) {
   let response
   try {
     response = await fetch(`${API_BASE}/api/stream-book-chunk-audio`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal,
       body: JSON.stringify({
         title,
         text_chunks_key: textChunksKey,
@@ -115,7 +127,10 @@ export async function streamBookChunkAudio({
         line_batch_size: lineBatchSize,
       }),
     })
-  } catch {
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw err
+    }
     throw new Error('Could not reach the server. Is the backend running?')
   }
 

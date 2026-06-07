@@ -1,4 +1,5 @@
 # requires `pip install httpx pydub boto3` and ffmpeg installed.
+import asyncio
 import os
 from io import BytesIO
 
@@ -28,7 +29,7 @@ class TextToSpeechError(Exception):
     """Raised when hook audio cannot be rendered by the TTS provider."""
 
 
-def make_audio(text, voice) -> bytes:
+def _tts_request(text, voice):
     if not XAI_API_KEY:
         raise TextToSpeechError("XAI_API_KEY is not configured")
 
@@ -43,6 +44,11 @@ def make_audio(text, voice) -> bytes:
         "Authorization": f"Bearer {XAI_API_KEY}",
         "Content-Type": "application/json",
     }
+    return payload, headers
+
+
+def make_audio(text, voice) -> bytes:
+    payload, headers = _tts_request(text, voice)
 
     try:
         response = httpx.post(
@@ -51,6 +57,29 @@ def make_audio(text, voice) -> bytes:
             json=payload,
             timeout=60.0,
         )
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        detail = exc.response.text[:500]
+        raise TextToSpeechError(f"xAI TTS rejected the request: {detail}") from exc
+    except httpx.HTTPError as exc:
+        raise TextToSpeechError(f"Could not reach xAI TTS: {exc}") from exc
+
+    if not response.content:
+        raise TextToSpeechError("xAI TTS returned empty audio")
+
+    return response.content
+
+
+async def make_audio_async(text, voice) -> bytes:
+    payload, headers = _tts_request(text, voice)
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                XAI_TTS_URL,
+                headers=headers,
+                json=payload,
+            )
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
         detail = exc.response.text[:500]
@@ -93,6 +122,33 @@ def render_hook(script) -> bytes:
 
     output = BytesIO()
     combined.export(output, format="mp3")
+    return output.getvalue()
+
+
+async def render_hook_async(script) -> bytes:
+    combined = AudioSegment.empty()
+    rendered_segments = 0
+
+    for line in script.splitlines():
+        speaker, text = parse_speaker_line(line)
+
+        if speaker not in VOICES or not text:
+            continue
+
+        audio_bytes = await make_audio_async(text, VOICES[speaker])
+        segment = await asyncio.to_thread(
+            AudioSegment.from_file,
+            BytesIO(audio_bytes),
+            format="mp3",
+        )
+        combined += segment
+        rendered_segments += 1
+
+    if rendered_segments == 0:
+        raise TextToSpeechError("Hook has no CHRIS:/NAVAL: dialogue lines to render")
+
+    output = BytesIO()
+    await asyncio.to_thread(combined.export, output, format="mp3")
     return output.getvalue()
 
 

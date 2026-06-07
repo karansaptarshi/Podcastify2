@@ -1,4 +1,4 @@
-# Podcastify Frontend
+# Podcastly Frontend
 
 A beautiful React application that turns any book into a podcast.
 

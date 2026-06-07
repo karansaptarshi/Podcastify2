@@ -191,7 +191,7 @@ export default function BookDetails() {
           <div className="studio-beam studio-beam-right"></div>
 
           <div className="searching-content">
-            <div className="studio-label">Podcastify Studio</div>
+            <div className="studio-label">Podcastly Studio</div>
 
             <div className="conversion-stage" aria-hidden="true">
               <div className="sound-ring sound-ring-one"></div>

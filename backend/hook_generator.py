@@ -25,7 +25,7 @@ load_dotenv()
 
 _OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_MODEL = "moonshotai/kimi-k2.6"
-_DEFAULT_APP_NAME = "Podcastify"
+_DEFAULT_APP_NAME = "Podcastly"
 _PLACEHOLDER_DIALOGUE = frozenset({"line of dialogue", "...", ""})
 
 

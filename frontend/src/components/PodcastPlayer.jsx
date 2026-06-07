@@ -7,10 +7,13 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
   isPreparing = false,
   error = null,
   autoStart = false,
+  introClipCount = 0,
+  onIntroPlaybackDone,
 }, ref) {
   const player = useContinuousPlayer()
   const addedClipUrlsRef = useRef(new Set())
   const autoStartedHookUrlRef = useRef(null)
+  const completedIntroCountRef = useRef(0)
 
   useImperativeHandle(ref, () => ({
     addClip: player.addClip,
@@ -37,9 +40,15 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
     player.start()
   }, [autoStart, clipUrls, hookUrl, player])
 
-  const togglePlayback = () => {
-    if (!hookUrl && !clipUrls.length && isPreparing) return
+  useEffect(() => {
+    if (!introClipCount || player.finishedClipCount < introClipCount) return
+    if (completedIntroCountRef.current === introClipCount) return
 
+    completedIntroCountRef.current = introClipCount
+    onIntroPlaybackDone?.()
+  }, [introClipCount, onIntroPlaybackDone, player.finishedClipCount])
+
+  const togglePlayback = () => {
     if (player.isPlaying) {
       player.pause()
       return
@@ -53,13 +62,9 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
       <button
         type="button"
         onClick={togglePlayback}
-        disabled={!hookUrl && !clipUrls.length && isPreparing}
-        style={{
-          ...styles.button,
-          ...(!hookUrl && !clipUrls.length && isPreparing ? styles.buttonDisabled : null),
-        }}
+        style={styles.button}
       >
-        {!hookUrl && !clipUrls.length && isPreparing ? 'Getting ready...' : player.isPlaying ? 'Pause' : 'Play'}
+        {player.isPlaying ? 'Pause' : 'Play'}
       </button>
 
       <button
@@ -77,8 +82,15 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
       </div>
 
       <div style={styles.status}>
-        {error || player.error || (!hookUrl && !clipUrls.length && isPreparing ? 'preparing audio...' : player.isWaiting ? 'loading next...' : player.isPlaying ? 'playing intro' : 'ready')}
+        {error || player.error || (!hookUrl && !clipUrls.length && isPreparing ? 'preparing audio...' : player.isPlaying ? 'playing' : 'ready')}
       </div>
+
+      <audio
+        ref={player.audioRef}
+        preload="auto"
+        playsInline
+        style={styles.nativeAudio}
+      />
     </div>
   )
 })
@@ -86,6 +98,7 @@ const PodcastPlayer = forwardRef(function PodcastPlayer({
 const styles = {
   shell: {
     display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: '14px',
     width: '100%',
@@ -105,10 +118,6 @@ const styles = {
     color: '#111',
     fontWeight: 700,
     cursor: 'pointer',
-  },
-  buttonDisabled: {
-    opacity: 0.72,
-    cursor: 'not-allowed',
   },
   speedButton: {
     minWidth: '58px',
@@ -138,6 +147,13 @@ const styles = {
     fontSize: '13px',
     color: 'rgba(255, 255, 255, 0.72)',
     textAlign: 'right',
+  },
+  nativeAudio: {
+    width: '1px',
+    height: '1px',
+    opacity: 0.01,
+    position: 'absolute',
+    pointerEvents: 'none',
   },
 }
 
