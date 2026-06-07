@@ -6,10 +6,10 @@
  * both the PDF and .txt file in Cloudflare R2. The caller gets back the R2 keys
  * + URLs plus light metadata.
  *
- * Base URL can be overridden with `VITE_API_URL` (defaults to localhost:8001).
+ * Base URL can be overridden with `VITE_API_URL` (defaults to the Railway backend).
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://podcastify2-production.up.railway.app'
 
 /**
  * Find a book's PDF and store it in R2.
