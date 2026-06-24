@@ -1,7 +1,6 @@
 # Podcastly
 
-Podcastly turns books into podcast-style audio: find a book, generate a short hook, and keep listening through chunked full-book audio.
-
+Listen to any book as a podcast conversation.
 For the easiest experience, go to [podcastify2.pages.dev](https://podcastify2.pages.dev).
 
 ## What It Does
