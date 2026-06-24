@@ -1,6 +1,7 @@
 # Podcastly
 
 Listen to any book as a podcast conversation.
+ Note: The backend may have a cold-start delay because I need to renew it. If generation fails the first time, try generating it again.
 For the easiest experience, go to [podcastify2.pages.dev](https://podcastify2.pages.dev).
 
 ## What It Does
