@@ -7,14 +7,10 @@ import './BookDetails.css'
 /**
  * BookDetails — the second page.
  *
- * After the user picks a book, this page lets them choose the podcast scope.
- * Full-book conversion then starts the hook and PDF jobs together. The hook
+ * After the user picks a book, this page starts full-book podcast conversion.
+ * Full-book conversion starts the hook and PDF jobs together. The hook
  * gets the user to the player first; the PDF keeps saving in the background.
- *   - "Summary"   -> just the first chapter   (scope: 'chapter')
  *   - "Full Book" -> the whole book           (scope: 'full')
- *
- * Full-book playback now navigates to the player shell directly. Summary
- * generation will be wired separately later.
  */
 export default function BookDetails() {
   const location = useLocation()
@@ -174,10 +170,6 @@ export default function BookDetails() {
     )
   }
 
-  const showSummaryComingSoon = () => {
-    setError('Summary generation is coming later.')
-  }
-
   // While finding the PDF on arrival, show the loading overlay.
   if (pdf.phase === 'finding') {
     return (
@@ -314,16 +306,6 @@ export default function BookDetails() {
 
         {/* Convert buttons */}
         <div className="convert-buttons">
-          <button className="convert-button summary-button" onClick={showSummaryComingSoon}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" x2="12" y1="19" y2="22" />
-            </svg>
-            Summary
-            <span className="button-badge free">5 minutes</span>
-          </button>
-
           <button
             className="convert-button full-button"
             onClick={() => startFullBookConversion()}

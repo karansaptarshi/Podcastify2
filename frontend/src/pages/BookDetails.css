@@ -322,35 +322,7 @@
   position: relative;
 }
 
-/* Summary button - golden/primary */
-.summary-button {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.24) 0%, rgba(14, 165, 233, 0.34) 100%);
-  color: #e0f7ff;
-  border: 1px solid rgba(125, 211, 252, 0.45);
-  box-shadow:
-    0 8px 24px rgba(56, 189, 248, 0.22),
-    0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.summary-button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.34) 0%, rgba(14, 165, 233, 0.48) 100%);
-  border-color: rgba(125, 211, 252, 0.7);
-  box-shadow:
-    0 12px 32px rgba(56, 189, 248, 0.32),
-    0 6px 16px rgba(0, 0, 0, 0.25);
-}
-
-.summary-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.9;
-}
-
-.summary-button.converting {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.34) 0%, rgba(2, 132, 199, 0.44) 100%);
-}
-
-/* Full book button - locked/dimmed */
+/* Full book button */
 .full-button {
   background: linear-gradient(135deg, #e8c170 0%, #d4a84b 100%);
   color: #1a1510;
@@ -790,12 +762,4 @@
     padding: 12px 16px;
   }
 
-  .summaries-section {
-    max-width: 100%;
-    padding: 0 10px;
-  }
-
-  .summary-card {
-    padding: 16px;
-  }
 }
